@@ -4,7 +4,7 @@
 
 *Given a seed URL, the crawler will go to the specified page.
 
-*Have a large, but existent limit on the number of pages the bot can travel across
+*Have a large, but existent limit on the number of pages the bot can travel across <---maybe not for now
 
 *Having reached the page, it will take all the other links on the page and add them onto a list of URLS to visit.
 

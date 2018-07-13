@@ -1,11 +1,10 @@
 package com.webcritterer;
 
-public class CritteringTest
-{
+public class CritteringTest {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Critterer critterer = new Critterer();
-        critterer.load("http://www.nytimes.com/");
+        critterer.load("http://wenxuecity.com");
+
     }
 }

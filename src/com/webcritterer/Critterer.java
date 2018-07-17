@@ -31,6 +31,7 @@ public class Critterer {
             } else {
                 currentUrl = this.nextUrl(); //if list not empty, currentURL will be next
             }
+
             scramble.critter(currentUrl); //method where CrittererEat is called to connect to and parse URL
             this.pagesNeededToGoTo.addAll(scramble.getLinks()); //collect more URLs
         }

@@ -3,21 +3,21 @@ package com.webcritterer;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class CrittererBandwidthLimitation extends InputStream { //extends inputstream from CrittererEat class (for wrapping purposes)
-    long maxKilobytesPerSecond = 100; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
+public class CrittererBandwidthLimitation extends InputStream {
+    long maxKilobytesPerSecond = 100;
     private InputStream inputStream;
-    long previousTimestamp = System.currentTimeMillis(); //creates a timestamp for later use
-    long counter = 0; //counter used to count bytes out of stream
-    int second = 1000; //1 second
-    long sleepincrement1 = maxKilobytesPerSecond - (7 * (maxKilobytesPerSecond / 10)); //First increment in stream where sleep is called
-    long bytesAtInc1 = sleepincrement1 * 1000; //Kilobytes to bytes conversion
+    long previousTimestamp = System.currentTimeMillis();
+    long counter = 0;
+    int second = 1000;
+    long sleepincrement1 = maxKilobytesPerSecond - (7 * (maxKilobytesPerSecond / 10));
+    long bytesAtInc1 = sleepincrement1 * 1000;
 
 
     public CrittererBandwidthLimitation(InputStream inStream) {
         inputStream = inStream;
-    } //inherits inputstream from CrittererEat class
+    }
 
-    @Override //override so that inputstream is only read once
+    @Override
     public int read() {
         int nextByte = -1;
         try {

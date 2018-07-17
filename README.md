@@ -10,6 +10,7 @@ While the Critterer can have its bandwidth restricted, this feature is extremely
 * The Critterer's URL specification is in the CrittererStarter class, or the main class of the program, and can be changed inside the "critterer.load()" quotes.
 * Maximum number of pages to travel to is in the Critterer class and can be changed at the "public static final long MaximumPagesToGoTo =" line.
 * Bandwidth limit is in the CrittererBandwidthLimitation class and can be changed at the "long maxKilobytesPerSecond =" line (in Kilobytes).
+* Run the program with the following specifications...Text files will be printed in the project folder 
 
 
 ## Authors

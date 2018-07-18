@@ -26,29 +26,21 @@ public class CrittererEat {
         return this.links;
     }
 
-    public boolean critter (String url) {
-        this.url = url;
-        InputStream i = download(url);
-        try {
-            return process(i);
-        } catch (IOException e1) {
-            return false;
-        }
-     }
-
-    private InputStream download(String url) {
+    public String critter(String url) {
         try {
             URLConnection connection = new URL(url).openConnection();
-            return connection.getInputStream();
-        } catch (IOException ioe) {
+            InputStream iStream = connection.getInputStream();
+            CountingInputStream someCountingstream = new CountingInputStream(iStream);
+            String htmlText = org.apache.commons.io.IOUtils.toString(someCountingstream);
+            int bytesRead = someCountingstream.getCount();
+            return process(htmlText);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null;
+       return null;
     }
 
-    private boolean process (InputStream iStream ) throws IOException {
-        CountingInputStream someCountingstream = new CountingInputStream(iStream);
-        String htmlText = org.apache.commons.io.IOUtils.toString(someCountingstream);
-        int bytesRead = someCountingstream.getCount();
+    private String process (String htmlText ) {
         Document htmlDocument = Jsoup.parse(htmlText);
         this.htmlDocument = htmlDocument;
         String filename = "<title></title>";
@@ -76,9 +68,8 @@ public class CrittererEat {
         for (Element link : linksOnPage) {
             this.links.add(link.absUrl("href"));
         }
-        return true;
+        return null;
     }
 }
-
 
 

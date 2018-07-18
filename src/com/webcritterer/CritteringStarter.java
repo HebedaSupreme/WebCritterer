@@ -1,5 +1,7 @@
 package com.webcritterer;
 
+import java.io.IOException;
+
 public class CritteringStarter {
 
     public static void main(String[] args) {

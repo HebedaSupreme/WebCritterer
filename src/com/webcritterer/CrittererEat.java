@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
@@ -19,7 +20,12 @@ public class CrittererEat {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
     private String url;
+    long maxKilobytesPerSecond = 100;
+    private InputStream inputStream;
     long previousTimestamp = System.currentTimeMillis();
+    long counter = 0;
+    int second = 1000;
+    long maxbytespersec = maxKilobytesPerSecond * 1000;
 
 
     public List<String> getLinks() {
@@ -33,11 +39,20 @@ public class CrittererEat {
             CountingInputStream someCountingstream = new CountingInputStream(iStream);
             String htmlText = org.apache.commons.io.IOUtils.toString(someCountingstream);
             int bytesRead = someCountingstream.getCount();
+            if (bytesRead >= maxbytespersec) { //if bytes counted exceeds the first increment
+                long currentTimestamp = System.currentTimeMillis(); //create timestamp
+                if (previousTimestamp + second >= currentTimestamp) { //verify the bytes were read within a second-long interval
+                    Thread.sleep(second); //if bytes per second exceeded limit sleep for three seconds
+                }
+                previousTimestamp = currentTimestamp;
+            }
             return process(htmlText);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-       return null;
+        return null;
     }
 
     private String process (String htmlText ) {
@@ -71,5 +86,3 @@ public class CrittererEat {
         return null;
     }
 }
-
-

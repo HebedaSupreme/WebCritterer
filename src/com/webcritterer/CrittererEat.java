@@ -19,6 +19,7 @@ public class CrittererEat {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
     private String url;
+    long previousTimestamp = System.currentTimeMillis();
 
 
     public List<String> getLinks() {
@@ -48,7 +49,7 @@ public class CrittererEat {
         CountingInputStream someCountingstream = new CountingInputStream(iStream);
         String htmlText = org.apache.commons.io.IOUtils.toString(someCountingstream);
         int bytesRead = someCountingstream.getCount();
-        Document htmlDocument = Jsoup.parse(htmlText); //jsoup package parses the string
+        Document htmlDocument = Jsoup.parse(htmlText);
         this.htmlDocument = htmlDocument;
         String filename = "<title></title>";
         Jsoup.parse(filename);Elements titles = htmlDocument.select("title");
@@ -62,7 +63,7 @@ public class CrittererEat {
         System.out.println("From page at:" + url);
 
         for (Element title : titles)
-            System.out.println(title.text()); //print the title
+            System.out.println(title.text());
 
 
         String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";

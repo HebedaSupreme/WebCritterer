@@ -9,8 +9,7 @@ public class CrittererBandwidthLimitation extends InputStream {
     long previousTimestamp = System.currentTimeMillis();
     long counter = 0;
     int second = 1000;
-    long sleepincrement1 = maxKilobytesPerSecond - (7 * (maxKilobytesPerSecond / 10));
-    long bytesAtInc1 = sleepincrement1 * 1000;
+    long maxbytespersec = maxKilobytesPerSecond * 1000;
 
 
     public CrittererBandwidthLimitation(InputStream inStream) {
@@ -25,7 +24,7 @@ public class CrittererBandwidthLimitation extends InputStream {
             ++counter; //increment counter per byte
             long bytes = counter;
             //System.out.println(bytes);
-            if (bytes >= bytesAtInc1) { //if bytes counted exceeds the first increment
+            if (bytes >= maxbytespersec) { //if bytes counted exceeds the first increment
                 long currentTimestamp = System.currentTimeMillis(); //create timestamp
                 if (previousTimestamp + second >= currentTimestamp) { //verify the bytes were read within a second-long interval
                     Thread.sleep(second * 3); //if bytes per second exceeded limit sleep for three seconds

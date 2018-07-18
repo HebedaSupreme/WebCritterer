@@ -56,32 +56,31 @@ public class CrittererEat {
     }
 
     private String process (String htmlText ) {
-        Document htmlDocument = Jsoup.parse(htmlText);
-        this.htmlDocument = htmlDocument;
-        String filename = "<title></title>";
-        Jsoup.parse(filename);Elements titles = htmlDocument.select("title");
-        PrintStream printStream = null;
         try {
-            printStream = new PrintStream((titles.text()) + ".txt");
-        } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-        }
-        System.setOut(printStream);
-        System.out.println("From page at:" + url);
+            Document htmlDocument = Jsoup.parse(htmlText);
+            this.htmlDocument = htmlDocument;
+            String filename = "<title></title>";
+            Jsoup.parse(filename);
+            Elements titles = htmlDocument.select("title");
+            PrintStream printStream = new PrintStream((titles.text()) + ".txt");
+            System.setOut(printStream);
+            System.out.println("From page at:" + url);
 
-        for (Element title : titles)
-            System.out.println(title.text());
+            for (Element title : titles)
+                System.out.println(title.text());
 
+            String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
+            Jsoup.parse(html);
+            Elements paragraphs = htmlDocument.select("p");
+            for (Element p : paragraphs)
+                System.out.println(p.text());
+            Elements linksOnPage = htmlDocument.select("a[href]");
+            System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
+            for (Element link : linksOnPage) {
+                this.links.add(link.absUrl("href"));
+            }
+        } catch(IOException ioe) {
 
-        String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
-        Jsoup.parse(html);
-        Elements paragraphs = htmlDocument.select("p");
-        for (Element p : paragraphs)
-            System.out.println(p.text());
-        Elements linksOnPage = htmlDocument.select("a[href]");
-        System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
-        for (Element link : linksOnPage) {
-            this.links.add(link.absUrl("href"));
         }
         return null;
     }

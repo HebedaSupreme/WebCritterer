@@ -40,11 +40,11 @@ public class Critterer {
             this.pagesNeededToGoTo.addAll(scramble.getLinks()); //collect more URLs
         }
         System.out.println("\n**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)"); //print message on text file
-        long totalbytesread = scramble.gettotalbytesRead();
+        long totalbytesread = scramble.gettotalBytesRead();
         long totalkilos = totalbytesread/1024;
-        long totaldifftime = scramble.gettotaldiffinTimestamps();
+        long totaldifftime = scramble.gettotalDiffInTimestamps();
         long totaltimedownloadingsec = totaldifftime/1000;
-        long totaltimeslept = scramble.gettotalsleeptime();
+        long totaltimeslept = scramble.gettotalSleepTime();
         long totalsleepsec = totaltimeslept/1000;
         float averagebytespertime = ((float) totalkilos)/ (totalsleepsec + totaltimedownloadingsec);
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));

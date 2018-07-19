@@ -19,14 +19,14 @@ public class CrittererEat
 {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
-    long maxKilobytesPerSecond = 200; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
+    long avgKilobytesPerSecond = 50; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
     //creates a timestamp for later use
     long second = 1000; //1 second
-    float maxbytespersec = maxKilobytesPerSecond * 1024;
+    float avgBytesPerSec = avgKilobytesPerSecond * 1024;
     long neededSleepTime;
-    long totalbytesread;
-    long totaldiffinTimestamps;
-    long totalsleeptime;
+    long totalBytesRead;
+    long totalDiffInTimestamps;
+    long totalSleepTime;
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
 
@@ -40,19 +40,19 @@ public class CrittererEat
             long previousTimestamp = System.currentTimeMillis();
             InputStream iStream = connection.getInputStream();
             long currentTimestamp = System.currentTimeMillis();
-            CountingInputStream someCountingstream = new CountingInputStream(iStream);
-            long diffinTimestamps = currentTimestamp - previousTimestamp;
+            CountingInputStream someCountingStream = new CountingInputStream(iStream);
+            long diffInTimestamps = currentTimestamp - previousTimestamp;
             //CrittererBandwidthLimitation in = new CrittererBandwidthLimitation(iStream); //Creates a new Bandwidth limiter which will inherit the inputstream
             //String htmlText = org.apache.commons.io.IOUtils.toString(iStream, connection.getContentEncoding()); //The inputstream having returned from the limiter, will be taken as a string
-            Document htmlDocument = Jsoup.parse(someCountingstream, null, url);
-            long bytesRead = someCountingstream.getCount();
-            totalbytesread += bytesRead;
-            totaldiffinTimestamps += diffinTimestamps;
+            Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+            long bytesRead = someCountingStream.getCount();
+            totalBytesRead += bytesRead;
+            totalDiffInTimestamps += diffInTimestamps;
 
 
-            neededSleepTime = (long) (((bytesRead * 1000)/maxbytespersec) - diffinTimestamps);
+            neededSleepTime = (long) (((bytesRead * 1000)/avgBytesPerSec) - diffInTimestamps);
             if(neededSleepTime > 0) {
-                totalsleeptime += neededSleepTime;
+                totalSleepTime += neededSleepTime;
                 Thread.sleep(neededSleepTime);
             }
             this.htmlDocument = htmlDocument;
@@ -90,16 +90,16 @@ public class CrittererEat
     return false;
     }
 
-    public long gettotalbytesRead(){
-        return totalbytesread;
+    public long gettotalBytesRead(){
+        return totalBytesRead;
     }
 
-    public long gettotaldiffinTimestamps(){
-        return totaldiffinTimestamps;
+    public long gettotalDiffInTimestamps(){
+        return totalDiffInTimestamps;
     }
 
-    public long gettotalsleeptime(){
-        return totalsleeptime;
+    public long gettotalSleepTime(){
+        return totalSleepTime;
     }
 
 }

@@ -19,11 +19,14 @@ public class CrittererEat
 {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
-    long maxKilobytesPerSecond = 100; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
+    long maxKilobytesPerSecond = 200; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
     //creates a timestamp for later use
-    int second = 1000; //1 second
-    long maxbytespersec = maxKilobytesPerSecond * 1000;
+    long second = 1000; //1 second
+    float maxbytespersec = maxKilobytesPerSecond * 1024;
     long neededSleepTime;
+    long totalbytesread;
+    long totaldiffinTimestamps;
+    long totalsleeptime;
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
 
@@ -42,15 +45,15 @@ public class CrittererEat
             //CrittererBandwidthLimitation in = new CrittererBandwidthLimitation(iStream); //Creates a new Bandwidth limiter which will inherit the inputstream
             //String htmlText = org.apache.commons.io.IOUtils.toString(iStream, connection.getContentEncoding()); //The inputstream having returned from the limiter, will be taken as a string
             Document htmlDocument = Jsoup.parse(someCountingstream, null, url);
-            int bytesRead = someCountingstream.getCount();
-            if (bytesRead >= maxbytespersec) { //if bytes counted exceeds the first increment
-                if (diffinTimestamps >= 1 ) {
-                    neededSleepTime = ((maxbytespersec/(1000 * bytesRead)) - (diffinTimestamps));
-                    if(neededSleepTime > 0) {
-                        Thread.sleep(neededSleepTime);
-                    }
-                }
-                previousTimestamp = currentTimestamp;
+            long bytesRead = someCountingstream.getCount();
+            totalbytesread += bytesRead;
+            totaldiffinTimestamps += diffinTimestamps;
+
+
+            neededSleepTime = (long) (((bytesRead * 1000)/maxbytespersec) - diffinTimestamps);
+            if(neededSleepTime > 0) {
+                totalsleeptime += neededSleepTime;
+                Thread.sleep(neededSleepTime);
             }
             this.htmlDocument = htmlDocument;
             //Will parse content from <title> headers and make them titles of printed text documents
@@ -86,5 +89,18 @@ public class CrittererEat
 
     return false;
     }
+
+    public long gettotalbytesRead(){
+        return totalbytesread;
+    }
+
+    public long gettotaldiffinTimestamps(){
+        return totaldiffinTimestamps;
+    }
+
+    public long gettotalsleeptime(){
+        return totalsleeptime;
+    }
+
 }
 

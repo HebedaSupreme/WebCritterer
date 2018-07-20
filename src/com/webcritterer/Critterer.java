@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Critterer {
-    public static final long maximumPagesToGoTo = 100; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
+    public static final long maximumPagesToGoTo = 50; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     private Set<String> pagesAlreadyHit = new HashSet<String>();
     private List<String> pagesNeededToGoTo = new LinkedList<String>();
     private long totalbytesread = 0;

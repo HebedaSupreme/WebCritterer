@@ -19,7 +19,7 @@ public class CrittererEat
 {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
-    long avgKilobytesPerSecond = 50; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
+    long avgKilobytesPerSecond = 150; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
     //creates a timestamp for later use
     long second = 1000; //1 second
     float avgBytesPerSec = avgKilobytesPerSecond * 1024;

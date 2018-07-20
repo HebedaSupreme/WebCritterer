@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Critterer {
-    public static final long MaximumPagesToGoTo = 100; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
+    public static final long maximumPagesToGoTo = 100; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     private Set<String> pagesAlreadyHit = new HashSet<String>();
     private List<String> pagesNeededToGoTo = new LinkedList<String>();
     private long totalbytesread = 0;
@@ -29,7 +29,7 @@ public class Critterer {
     public void load(String url) {
         String currentUrl;
         CrittererEat scramble = new CrittererEat(); //initializes CrittererEat which will travel through a connection and parse the content
-        while (this.pagesAlreadyHit.size() < MaximumPagesToGoTo) { //while pagesalreadyhit is under limit
+        while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) { //while pagesalreadyhit is under limit
             if (this.pagesNeededToGoTo.isEmpty()) {
                 currentUrl = url;   //if pages to go to is empty, the currentURL is the url to travel to, and add said url to list of those already hit
                 this.pagesAlreadyHit.add(url);

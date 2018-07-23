@@ -40,16 +40,24 @@ public class Critterer {
             this.pagesNeededToGoTo.addAll(scramble.getLinks()); //collect more URLs
         }
         System.out.println("\n**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)"); //print message on text file
-        long totalbytesread = scramble.gettotalBytesRead();
-        long totalkilos = totalbytesread/1024;
-        long totaldifftime = scramble.gettotalDiffInTimestamps();
-        long totaltimedownloadingsec = totaldifftime/1000;
-        long totaltimeslept = scramble.gettotalSleepTime();
-        long totalsleepsec = totaltimeslept/1000;
-        float averagebytespertime = ((float) totalkilos)/ (totalsleepsec + totaltimedownloadingsec);
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-        System.out.println(averagebytespertime + " kilobytes/sec");
-        System.out.println("Time slept:" + totaltimeslept + " milliseconds");
+        long totalBytesRead = scramble.gettotalBytesRead();
+        long totalKilos = totalBytesRead/1024;
+        System.out.println("TotalKilos: " + totalKilos);
+        long totalDiffTime = scramble.gettotalDiffInTimestamps();
+        long totalTimeDownloadingSec = totalDiffTime/1000;
+        long totalTimeSlept = scramble.gettotalSleepTime();
+        long totalSleepSec = totalTimeSlept/1000;
+        float averageBytesPerTime = (totalKilos) / ((float)totalSleepSec + totalTimeDownloadingSec);
+        float totalTruncatedValue = scramble.gettotalTruncatedValue();
+        long maxBytesReadAtOnce = scramble.getmaxBytesReadAtOnce();
+        long maxKilosReadAtOnce = maxBytesReadAtOnce/1024;
+        float totalTheoryTime = scramble.gettotalTheoryTime();
+        System.out.println("Average KB/sec: " + averageBytesPerTime + " kilobytes/sec");
+        System.out.println("Time slept: " + totalTimeSlept + " milliseconds");
+        System.out.println("Time Theoretically Supposed To Be Slept: " + totalTheoryTime);
+        System.out.println("Time Truncated: " + totalTruncatedValue + " millis");
+        System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
+
     }
 
 }

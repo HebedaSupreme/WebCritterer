@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -40,9 +41,9 @@ public class CrittererEat
         return this.links;
     }
 
-    public boolean critter(String url) {
+    public Document critter(String url) {
         try {
-            if(bandwidthLimiter) {
+            if (bandwidthLimiter) {
                 URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
                 long previousTimestamp = System.currentTimeMillis();
                 InputStream iStream = connection.getInputStream();
@@ -82,8 +83,8 @@ public class CrittererEat
                 }
 
                 this.htmlDocument = htmlDocument;
-            }
-            else {
+
+            } else {
                 URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
                 InputStream iStream = connection.getInputStream();
                 CountingInputStream someCountingStream = new CountingInputStream(iStream);
@@ -97,40 +98,50 @@ public class CrittererEat
                     maxBytesReadAtOnce = bytesRead;
                 }
             }
+            digest(htmlDocument);
 
-            //Will parse content from <title> headers and make them titles of printed text documents
-            String filename = "<title></title>";
-            Jsoup.parse(filename);
-            Elements titles = htmlDocument.select("title");
-            PrintWriter pw = new PrintWriter((/*pathToDir +*/ titles.text()) + ".txt");
-            //Set the printstream out to a text file
-            pw.println("From page at:" + url); //print a message
+        } catch(IOException ioe) {
 
-            for (Element title : titles)
-                pw.println(title.text()); //print the title
+        } catch(InterruptedException e) {
 
-            //Parses the content from the page and prints it into text file
-            String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
-            Jsoup.parse(html);
-            Elements paragraphs = htmlDocument.select("p");
-            for (Element p : paragraphs)
-                pw.println(p.text());
-            //Collects links and adds them to list while counting number found
-            pw.close();
-            Elements linksOnPage = htmlDocument.select("a[href]");
-            System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
-            for (Element link : linksOnPage) {
-                this.links.add(link.absUrl("href"));
-            }
-            return true;
-        } catch (IOException ioe) {
-            return false;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
-
-    return false;
+        return htmlDocument;
     }
+
+        public boolean digest(Document htmlDocument){
+            //Will parse content from <title> headers and make them titles of printed text documents
+            try {
+                String filename = "<title></title>";
+                Jsoup.parse(filename);
+                Elements titles = htmlDocument.select("title");
+                PrintWriter pw = null;
+
+                pw = new PrintWriter((titles.text()) + ".txt");
+
+                //Set the printstream out to a text file
+                //pw.println("From page at:" + url); print a message
+
+                for (Element title : titles)
+                    pw.println(title.text()); //print the title
+
+                //Parses the content from the page and prints it into text file
+                String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
+                Jsoup.parse(html);
+                Elements paragraphs = htmlDocument.select("p");
+                for (Element p : paragraphs)
+                    pw.println(p.text());
+                //Collects links and adds them to list while counting number found
+                pw.close();
+                Elements linksOnPage = htmlDocument.select("a[href]");
+                System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
+                for (Element link : linksOnPage) {
+                    this.links.add(link.absUrl("href"));
+                }
+                return true;
+
+            } catch (FileNotFoundException e) {
+            } return false;
+        }
 
     public long gettotalBytesRead(){
         return totalBytesRead;

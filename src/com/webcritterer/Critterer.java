@@ -1,8 +1,5 @@
 package com.webcritterer;
 
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +9,7 @@ public class Critterer {
     public static final long maximumPagesToGoTo = 50; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     private Set<String> pagesAlreadyHit = new HashSet<String>();
     private List<String> pagesNeededToGoTo = new LinkedList<String>();
-    private long totalbytesread = 0;
-    private long totaltimedownloading = 0;
+    public long totalKilos;
     //created a list of pages to go to and a set of pages already hit (set because of unique entries)
 
     //get first entry from pagesNeededToGoTo, make sure URL hasn't already been visited, or find the next one to visit
@@ -41,7 +37,7 @@ public class Critterer {
         }
         System.out.println("\n**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)"); //print message on text file
         long totalBytesRead = scramble.gettotalBytesRead();
-        long totalKilos = totalBytesRead/1024;
+        totalKilos = totalBytesRead/1024;
         System.out.println("TotalKilos: " + totalKilos);
         long totalDiffTime = scramble.gettotalDiffInTimestamps();
         long totalTimeDownloadingSec = totalDiffTime/1000;
@@ -52,12 +48,21 @@ public class Critterer {
         long maxBytesReadAtOnce = scramble.getmaxBytesReadAtOnce();
         long maxKilosReadAtOnce = maxBytesReadAtOnce/1024;
         float totalTheoryTime = scramble.gettotalTheoryTime();
-        System.out.println("Average KB/sec: " + averageBytesPerTime + " kilobytes/sec");
+        //float avgByTimestamp = totalKilos/totalTimeRunnning;
+        System.out.println("Average KB/sec by Addition: " + averageBytesPerTime + " kilobytes/sec");
+        //System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
         System.out.println("Time slept: " + totalTimeSlept + " milliseconds");
         System.out.println("Time Theoretically Supposed To Be Slept: " + totalTheoryTime);
         System.out.println("Time Truncated: " + totalTruncatedValue + " millis");
         System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
+        float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
+        //System.out.println("Total Time Spent Running: " + totalTimeRunnning + " seconds");
+        System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
 
+    }
+
+    public long gettotalKilos(){
+        return totalKilos;
     }
 
 }

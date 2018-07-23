@@ -19,7 +19,8 @@ public class CrittererEat
 {
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
-    long avgKilobytesPerSecond = 720; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
+    boolean bandwidthLimiter = true;
+    long avgKilobytesPerSecond = 304; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
     //creates a timestamp for later use
     long second = 1000; //1 second
     float avgBytesPerSec = avgKilobytesPerSecond * 1024;
@@ -41,44 +42,62 @@ public class CrittererEat
 
     public boolean critter(String url) {
         try {
-            URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
-            long previousTimestamp = System.currentTimeMillis();
-            InputStream iStream = connection.getInputStream();
-            long currentTimestamp = System.currentTimeMillis();
-            CountingInputStream someCountingStream = new CountingInputStream(iStream);
-            long diffInTimestamps = currentTimestamp - previousTimestamp;
-            System.out.println("Time Spent Downloading: " + diffInTimestamps);
-            //CrittererBandwidthLimitation in = new CrittererBandwidthLimitation(iStream); //Creates a new Bandwidth limiter which will inherit the inputstream
-            //String htmlText = org.apache.commons.io.IOUtils.toString(iStream, connection.getContentEncoding()); //The inputstream having returned from the limiter, will be taken as a string
-            Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-            long bytesRead = someCountingStream.getCount();
-            System.out.println("Bytes Read: " + bytesRead);
-            totalBytesRead += bytesRead;
-            totalDiffInTimestamps += diffInTimestamps;
+            if(bandwidthLimiter) {
+                URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
+                long previousTimestamp = System.currentTimeMillis();
+                InputStream iStream = connection.getInputStream();
+                long currentTimestamp = System.currentTimeMillis();
+                CountingInputStream someCountingStream = new CountingInputStream(iStream);
+                long diffInTimestamps = currentTimestamp - previousTimestamp;
+                System.out.println("Time Spent Downloading: " + diffInTimestamps);
+                //CrittererBandwidthLimitation in = new CrittererBandwidthLimitation(iStream); //Creates a new Bandwidth limiter which will inherit the inputstream
+                //String htmlText = org.apache.commons.io.IOUtils.toString(iStream, connection.getContentEncoding()); //The inputstream having returned from the limiter, will be taken as a string
+                Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+                long bytesRead = someCountingStream.getCount();
+                System.out.println("Bytes Read: " + bytesRead);
+                totalBytesRead += bytesRead;
+                totalDiffInTimestamps += diffInTimestamps;
 
-            theoreticalSleepTime = (((bytesRead * 1000)/avgBytesPerSec) - diffInTimestamps);
-            neededSleepTime = (long) (theoreticalSleepTime);
-            truncatedValue = (theoreticalSleepTime - neededSleepTime);
+                theoreticalSleepTime = (((bytesRead * 1000) / avgBytesPerSec) - diffInTimestamps);
+                neededSleepTime = (long) (theoreticalSleepTime);
+                truncatedValue = (theoreticalSleepTime - neededSleepTime);
 
-            if(theoreticalSleepTime > 0){
-                System.out.println("Theoretical Sleep Time: " + theoreticalSleepTime);
-                totalTheoryTime += theoreticalSleepTime;
+                if (theoreticalSleepTime > 0) {
+                    System.out.println("Theoretical Sleep Time: " + theoreticalSleepTime);
+                    totalTheoryTime += theoreticalSleepTime;
+                }
+
+                if (neededSleepTime > 0) {
+                    totalSleepTime += neededSleepTime;
+                    System.out.println("neededSleepTime" + neededSleepTime);
+                    Thread.sleep(neededSleepTime);
+                }
+
+                if (truncatedValue > 0) {
+                    System.out.println("Truncated Time: " + truncatedValue);
+                    totalTruncatedValue += truncatedValue;
+                }
+                if (bytesRead > maxBytesReadAtOnce) {
+                    maxBytesReadAtOnce = bytesRead;
+                }
+
+                this.htmlDocument = htmlDocument;
+            }
+            else {
+                URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
+                InputStream iStream = connection.getInputStream();
+                CountingInputStream someCountingStream = new CountingInputStream(iStream);
+                Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+                long bytesRead = someCountingStream.getCount();
+                System.out.println("Bytes Read: " + bytesRead);
+                totalBytesRead += bytesRead;
+                this.htmlDocument = htmlDocument;
+
+                if (bytesRead > maxBytesReadAtOnce) {
+                    maxBytesReadAtOnce = bytesRead;
+                }
             }
 
-            if(neededSleepTime > 0) {
-                totalSleepTime += neededSleepTime;
-                System.out.println("neededSleepTime" + neededSleepTime);
-                Thread.sleep(neededSleepTime);
-            }
-            if(truncatedValue > 0) {
-                System.out.println("Truncated Time: " + truncatedValue);
-                totalTruncatedValue += truncatedValue;
-            }
-            if(bytesRead > maxBytesReadAtOnce) {
-                maxBytesReadAtOnce = bytesRead;
-            }
-
-            this.htmlDocument = htmlDocument;
             //Will parse content from <title> headers and make them titles of printed text documents
             String filename = "<title></title>";
             Jsoup.parse(filename);

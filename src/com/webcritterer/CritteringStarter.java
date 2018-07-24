@@ -33,12 +33,15 @@ public class CritteringStarter {
 
                         } else {
                             System.out.println("Error: The Average Bandwidth Per Second Must Be A Number of Kilobytes Per Second (e.g. 123)");
+                            System.out.println("Please Refer to ReadMe/Instructions");
                         }
                     } else {
                         System.out.println("Error: Please Indicate Whether Bandwidth Should Be Limited Using Only Either 'true' or 'false'");
+                        System.out.println("Please Refer to ReadMe/Instructions");
                     }
                 } else {
                     System.out.println("Running Default Configuration of 200 Pages With No Bandwidth Limit On Seed URL " + args[0]);
+                    System.out.println("If other specifications are preferred, please refer to ReadMe/Instructions");
                     args[1] = "200";
                     args[2] = "false";
                     long startTimestamp = System.currentTimeMillis();
@@ -54,9 +57,11 @@ public class CritteringStarter {
                 }
             } else {
                 System.out.println("Error: Please Enter A Valid URL (start with www.)");
+                System.out.println("Please Refer to ReadMe/Instructions");
             }
         } else {
             System.out.println("Error: Please Specify Seed URL");
+            System.out.println("Please Refer to ReadMe/Instructions");
 
 
         }

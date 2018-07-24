@@ -18,10 +18,17 @@ import java.util.List;
 public class CrittererEat
 
 {
+    CrittererEat(String[] arguments){
+        this.args = arguments;
+    }
+
+    public String[] args;
+    public String bandwidthLimiterOptions = args[2];
+    public boolean bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
+    public String assignedAvgKBS = args[3];
+    public long avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
-    boolean bandwidthLimiter = true;
-    long avgKilobytesPerSecond = 304; //ASSIGN THE MAXIMUM NUMBER OF KILOBYTES PER SECOND HERE (BANDWIDTH CONSUMPTION)
     //creates a timestamp for later use
     long second = 1000; //1 second
     float avgBytesPerSec = avgKilobytesPerSecond * 1024;
@@ -100,70 +107,72 @@ public class CrittererEat
             }
             digest(htmlDocument);
 
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
 
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
 
         }
         return htmlDocument;
     }
 
-        public boolean digest(Document htmlDocument){
-            //Will parse content from <title> headers and make them titles of printed text documents
-            try {
-                String filename = "<title></title>";
-                Jsoup.parse(filename);
-                Elements titles = htmlDocument.select("title");
-                PrintWriter pw = null;
+    public boolean digest(Document htmlDocument) {
+        //Will parse content from <title> headers and make them titles of printed text documents
+        try {
+            String filename = "<title></title>";
+            Jsoup.parse(filename);
+            Elements titles = htmlDocument.select("title");
+            PrintWriter pw = null;
 
-                pw = new PrintWriter((titles.text()) + ".txt");
+            pw = new PrintWriter((titles.text()) + ".txt");
 
-                //Set the printstream out to a text file
-                //pw.println("From page at:" + url); print a message
+            //Set the printstream out to a text file
+            //pw.println("From page at:" + url); print a message
 
-                for (Element title : titles)
-                    pw.println(title.text()); //print the title
+            for (Element title : titles)
+                pw.println(title.text()); //print the title
 
-                //Parses the content from the page and prints it into text file
-                String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
-                Jsoup.parse(html);
-                Elements paragraphs = htmlDocument.select("p");
-                for (Element p : paragraphs)
-                    pw.println(p.text());
-                //Collects links and adds them to list while counting number found
-                pw.close();
-                Elements linksOnPage = htmlDocument.select("a[href]");
-                System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
-                for (Element link : linksOnPage) {
-                    this.links.add(link.absUrl("href"));
-                }
-                return true;
+            //Parses the content from the page and prints it into text file
+            String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
+            Jsoup.parse(html);
+            Elements paragraphs = htmlDocument.select("p");
+            for (Element p : paragraphs)
+                pw.println(p.text());
+            //Collects links and adds them to list while counting number found
+            pw.close();
+            Elements linksOnPage = htmlDocument.select("a[href]");
+            System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
+            for (Element link : linksOnPage) {
+                this.links.add(link.absUrl("href"));
+            }
+            return true;
 
-            } catch (FileNotFoundException e) {
-            } return false;
+        } catch (FileNotFoundException e) {
+
         }
+        return false;
+    }
 
-    public long gettotalBytesRead(){
+    public long gettotalBytesRead() {
         return totalBytesRead;
     }
 
-    public long gettotalDiffInTimestamps(){
+    public long gettotalDiffInTimestamps() {
         return totalDiffInTimestamps;
     }
 
-    public long gettotalSleepTime(){
+    public long gettotalSleepTime() {
         return totalSleepTime;
     }
 
-    public float gettotalTruncatedValue(){
+    public float gettotalTruncatedValue() {
         return totalTruncatedValue;
     }
 
-    public float gettotalTheoryTime(){
+    public float gettotalTheoryTime() {
         return totalTheoryTime;
     }
 
-    public long getmaxBytesReadAtOnce(){
+    public long getmaxBytesReadAtOnce() {
         return maxBytesReadAtOnce;
     }
 }

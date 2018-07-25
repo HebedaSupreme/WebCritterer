@@ -2,64 +2,49 @@ package com.webcritterer;
 
 
 public class CritteringStarter {
-    //Note that String maximumPagesToGoTo = args[1];
-    //Note that String bandwidthLimiter = args[2];
-    //Note that String avgKilobytes = args[3];
+    //0...url 1...pages  2...limiter
 
     public static void main(String[] args) {
-
-        if (args != null && args.length > 0) {
-
+        if (args.length < 2) {
+            System.out.println("Error: Please Refer to ReadMe/Instructions");
+        } else {
             if (args[0].contains("www.")) {
                 String seedURL = args[0];
-
                 if (args[1].matches("[0-9]+")) {
-
-                    if () {
-
-                        if (args[3].matches("[0-9]+")) {
-                            long startTimestamp = System.currentTimeMillis();
-                            Critterer critterer = new Critterer(args); //initializes Critterer class
-                            critterer.load("https://" + seedURL); // INSERT SEED URL here
-                            long endTimestamp = System.currentTimeMillis();
-                            long totalTimeRunnning;
-                            totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
-                            System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
-                            long totalKilos = critterer.gettotalKilos();
-                            long avgByTimestamp = totalKilos / totalTimeRunnning;
-                            System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
-
-                        } else {
-                            System.out.println("Error: The Average Bandwidth Per Second Must Be A Number of Kilobytes Per Second (e.g. 123)");
-                            System.out.println("Please Refer to ReadMe/Instructions");
-                        }
+                    if (args[2].matches("[0-9]+")) {
+                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages At Bandwidth Limit Of " + args[2] + "Kilobytes/Second");
+                        System.out.println("If other specifications are preferred, please refer to ReadMe/Instructions");
+                        long startTimestamp = System.currentTimeMillis();
+                        Critterer critterer = new Critterer(args);
+                        critterer.load("https://" + seedURL);
+                        long endTimestamp = System.currentTimeMillis();
+                        long totalTimeRunnning;
+                        totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
+                        System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
+                        long totalKilos = critterer.gettotalKilos();
+                        long avgByTimestamp = totalKilos / totalTimeRunnning;
+                        System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
                     } else {
-                        System.out.println("Error: Please Indicate Whether Bandwidth Should Be Limited Using Only Either 'true' or 'false'");
-                        System.out.println("Please Refer to ReadMe/Instructions");
+                        args[2] = "false";
+                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages With No Bandwidth Limit");
+                        System.out.println("If other specifications are preferred, please refer to ReadMe/Instructions");
+                        long startTimestamp = System.currentTimeMillis();
+                        Critterer critterer = new Critterer(args);
+                        critterer.load("https://" + seedURL);
+                        long endTimestamp = System.currentTimeMillis();
+                        long totalTimeRunnning;
+                        totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
+                        System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
+                        long totalKilos = critterer.gettotalKilos();
+                        long avgByTimestamp = totalKilos / totalTimeRunnning;
+                        System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
                     }
                 } else {
-                    System.out.println("Running Default Configuration of 200 Pages With No Bandwidth Limit On Seed URL " + args[0]);
-                    System.out.println("If other specifications are preferred, please refer to ReadMe/Instructions");
-                    args[1] = "200";
-                    args[2] = "false";
-                    long startTimestamp = System.currentTimeMillis();
-                    Critterer critterer = new Critterer(args);
-                    critterer.load("https://" + args[0]);
-                    long endTimestamp = System.currentTimeMillis();
-                    long totalTimeRunnning;
-                    totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
-                    System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
-                    long totalKilos = critterer.gettotalKilos();
-                    long avgByTimestamp = totalKilos / totalTimeRunnning;
-                    System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
+                    System.out.println("Error: Please Refer to ReadMe/Instructions");
                 }
             } else {
-                System.out.println("Error: Please Enter A Valid URL (start with www.)");
-                System.out.println("Please Refer to ReadMe/Instructions");
+                System.out.println("Error: Please Refer to ReadMe/Instructions");
             }
-        } else {
-            System.out.println("Error: Please Specify Seed URL");
-            System.out.println("Please Refer to ReadMe/Instructions");
         }
     }
 }

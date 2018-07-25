@@ -20,10 +20,15 @@ public class CrittererEat
 {
     CrittererEat(String[] arguments){
         this.args = arguments;
-        this.bandwidthLimiterOptions = args[2];
-        this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
-        this.assignedAvgKBS = args[3];
-        this.avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
+        if (args[2].matches("[0-9]+")) {
+            this.bandwidthLimiterOptions = "true";
+            this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
+            this.assignedAvgKBS = args[2];
+            this.avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
+        } else {
+            this.bandwidthLimiterOptions = "false";
+            this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
+        }
     }
 
     public String[] args;
@@ -62,8 +67,6 @@ public class CrittererEat
                 CountingInputStream someCountingStream = new CountingInputStream(iStream);
                 long diffInTimestamps = currentTimestamp - previousTimestamp;
                 System.out.println("Time Spent Downloading: " + diffInTimestamps);
-                //CrittererBandwidthLimitation in = new CrittererBandwidthLimitation(iStream); //Creates a new Bandwidth limiter which will inherit the inputstream
-                //String htmlText = org.apache.commons.io.IOUtils.toString(iStream, connection.getContentEncoding()); //The inputstream having returned from the limiter, will be taken as a string
                 Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
                 long bytesRead = someCountingStream.getCount();
                 System.out.println("Bytes Read: " + bytesRead);

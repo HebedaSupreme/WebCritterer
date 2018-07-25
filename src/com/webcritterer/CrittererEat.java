@@ -20,10 +20,10 @@ public class CrittererEat
 {
     CrittererEat(String[] arguments){
         this.args = arguments;
-        if (args[2].matches("[0-9]+")) {
+        if (args[3].matches("[0-9]+")) {
             this.bandwidthLimiterOptions = "true";
             this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
-            this.assignedAvgKBS = args[2];
+            this.assignedAvgKBS = args[3];
             this.avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
         } else {
             this.bandwidthLimiterOptions = "false";

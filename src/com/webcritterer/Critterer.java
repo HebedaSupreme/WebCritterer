@@ -1,33 +1,26 @@
 package com.webcritterer;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 public class Critterer {
 
     Critterer(String args[]){
         this.arguments = args;
-        this.maxPagesGoingTo = args[1];
+        this.urlFile = args[1];
+        this.maxPagesGoingTo = args[2];
         this.maximumPagesToGoTo =  Long.parseLong(maxPagesGoingTo);
     }
 
     public String[] arguments;
+    public String urlFile;
     public String maxPagesGoingTo;
     public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public List<String> pagesNeededToGoTo = new LinkedList<String>();
     public long totalKilos;
 
-    private String nextUrl() {
-        String nextUrl;
-        do {
-            nextUrl = this.pagesNeededToGoTo.remove(0);
-        } while (this.pagesAlreadyHit.contains(nextUrl));
-        this.pagesAlreadyHit.add(nextUrl);
-        return nextUrl;
-    }
 
     public void load(String url) {
         String currentUrl;
@@ -62,8 +55,32 @@ public class Critterer {
         System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
         float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
         System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
-
     }
+
+    public void addingurllist(){
+        if (arguments[1].contains(".txt")){
+            File urlFile = new File(arguments[1]);
+            Scanner input = null;
+            try {
+                input = new Scanner(urlFile);
+            } catch (FileNotFoundException e) {
+            }
+            while (input.hasNextLine()) {
+                pagesNeededToGoTo.add(input.nextLine());
+            }
+        }
+    }
+
+    private String nextUrl() {
+        String nextUrl;
+        do {
+            nextUrl = this.pagesNeededToGoTo.remove(0);
+        } while (this.pagesAlreadyHit.contains(nextUrl));
+        this.pagesAlreadyHit.add(nextUrl);
+        return nextUrl;
+    }
+
+
 
     public long gettotalKilos() {
         return totalKilos;

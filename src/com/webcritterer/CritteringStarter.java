@@ -1,7 +1,5 @@
 package com.webcritterer;
 
-import java.io.IOException;
-import java.util.Scanner;
 
 public class CritteringStarter {
     //Note that String maximumPagesToGoTo = args[1];
@@ -15,11 +13,11 @@ public class CritteringStarter {
             if (args[0].contains("www.")) {
                 String seedURL = args[0];
 
-                if (args[1].matches("[0-9]")) {
+                if (args[1].matches("[0-9]+")) {
 
-                    if (args[2].contains("true") || args[2].contains("false")) {
+                    if () {
 
-                        if (args[3].matches("[0-9]")) {
+                        if (args[3].matches("[0-9]+")) {
                             long startTimestamp = System.currentTimeMillis();
                             Critterer critterer = new Critterer(args); //initializes Critterer class
                             critterer.load("https://" + seedURL); // INSERT SEED URL here
@@ -62,8 +60,6 @@ public class CritteringStarter {
         } else {
             System.out.println("Error: Please Specify Seed URL");
             System.out.println("Please Refer to ReadMe/Instructions");
-
-
         }
     }
 }

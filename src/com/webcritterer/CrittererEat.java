@@ -20,13 +20,17 @@ public class CrittererEat
 {
     CrittererEat(String[] arguments){
         this.args = arguments;
+        this.bandwidthLimiterOptions = args[2];
+        this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
+        this.assignedAvgKBS = args[3];
+        this.avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
     }
 
     public String[] args;
-    public String bandwidthLimiterOptions = args[2];
-    public boolean bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
-    public String assignedAvgKBS = args[3];
-    public long avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
+    public String bandwidthLimiterOptions;
+    public boolean bandwidthLimiter;
+    public String assignedAvgKBS;
+    public long avgKilobytesPerSecond;
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
     //creates a timestamp for later use

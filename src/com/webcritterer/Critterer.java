@@ -9,11 +9,13 @@ public class Critterer {
 
     Critterer(String args[]){
         this.arguments = args;
+        this.maxPagesGoingTo = args[1];
+        this.maximumPagesToGoTo =  Long.parseLong(maxPagesGoingTo);
     }
 
     public String[] arguments;
-    public String maxPagesGoingTo = arguments[1];
-    public long maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo); //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
+    public String maxPagesGoingTo;
+    public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public List<String> pagesNeededToGoTo = new LinkedList<String>();
     public long totalKilos;

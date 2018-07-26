@@ -8,7 +8,7 @@ public class CrittererLaunchpad {
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "Usage: run <SeedURL> [Directory Path to File with URL --> 'No' if not needed] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
+    public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
     public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
     long totalTimeRunnning;

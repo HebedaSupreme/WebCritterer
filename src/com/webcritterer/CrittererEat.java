@@ -38,9 +38,9 @@ public class CrittererEat {
 
     CrittererEat(String[] arguments){
         this.args = arguments;
-        if (args[3].matches("[0-9]+")) {
+        if (args[2].matches("[0-9]+")) {
             this.bandwidthLimiter = true;
-            this.assignedAvgKBS = args[3];
+            this.assignedAvgKBS = args[2];
         } else {
             this.bandwidthLimiter = false;
         }

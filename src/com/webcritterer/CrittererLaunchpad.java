@@ -15,6 +15,7 @@ public class CrittererLaunchpad {
     long startTimestamp;
     long endTimestamp;
 
+
     CrittererLaunchpad(String args[]) {
         this.args = args;
     }
@@ -31,19 +32,19 @@ public class CrittererLaunchpad {
 
     public void launchpad() {
 
-        if (args.length < 3) {
+        if (args.length < 2) {
             errorMessaging();
         } else {
-            if (args[0].contains("www.")) {
-                if (args[2].matches("[0-9]+")) {
-                    if (args[3].matches("[0-9]+")) {
-                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[2] + " Webpages At Bandwidth Limit Of " + args[3] + " Kilobytes/Second");
+            if (args[0].contains("www.") || args[0].contains(".org") || args[0].contains(".com")) {
+                if (args[1].matches("[0-9]+")) {
+                    if (args[2].matches("[0-9]+")) {
+                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages At Bandwidth Limit Of " + args[2] + " Kilobytes/Second");
                         askSpecsMessaging();
                         launch();
 
                     } else {
-                        args[3] = "false";
-                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[2] + " Webpages With No Bandwidth Limit");
+                        args[2] = "false";
+                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages With No Bandwidth Limit");
                         askSpecsMessaging();
                         launch();
                     }
@@ -51,13 +52,21 @@ public class CrittererLaunchpad {
                     errorMessaging();
                 }
             } else {
-                askSpecsMessaging();
-                critterer = new Critterer(args);
-                critterer.addingurllist();
-                List<String> urlList = critterer.getPagesNeededToGoTo();
-                String urlConvertedToString = String.valueOf(urlList.get(0));
-                args[0] = urlConvertedToString;
-                critterer.load("https://" + args[0]);
+                if (args[1].matches("[0-9]+")) {
+                    if (args[2].matches("[0-9]+")) {
+                        System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages At Bandwidth Of " + args[2] + " Kilobytes/Second");
+                        askSpecsMessaging();
+                        launchForFile();
+
+                    } else {
+                        args[2] = "false";
+                        System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages With No Bandwidth Limit");
+                        askSpecsMessaging();
+                        launchForFile();
+                    }
+                } else {
+                    errorMessaging();
+                }
             }
         }
     }
@@ -71,6 +80,15 @@ public class CrittererLaunchpad {
         endTimestamp = System.currentTimeMillis();
         printMoreFinalStats();
 
+    }
+
+    public void launchForFile() {
+        critterer = new Critterer(args);
+        critterer.addingurllist();
+        List<String> urlList = critterer.getPagesNeededToGoTo();
+        String urlConvertedToString = String.valueOf(urlList.get(0));
+        args[0] = urlConvertedToString;
+        critterer.load("https://" + args[0]);
     }
 
     public void printMoreFinalStats() {

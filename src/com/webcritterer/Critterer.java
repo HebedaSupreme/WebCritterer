@@ -8,8 +8,8 @@ public class Critterer {
 
     Critterer(String args[]){
         this.arguments = args;
-        this.maxPagesGoingTo = args[2];
-        this.urlFile = args[1];
+        this.maxPagesGoingTo = args[1];
+        this.urlFile = args[0];
         maximumPagesToGoTo =  Long.parseLong(maxPagesGoingTo);
     }
 
@@ -24,8 +24,8 @@ public class Critterer {
 
 
     public void addingurllist(){
-        if (arguments[1].contains("txt")){
-            File urlFile = new File(arguments[1]);
+        if (arguments[0].contains("txt")){
+            File urlFile = new File(arguments[0]);
             Scanner input = null;
             try {
                 input = new Scanner(urlFile);

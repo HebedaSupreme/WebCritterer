@@ -2,9 +2,6 @@ package com.webcritterer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Critterer {
@@ -23,11 +20,28 @@ public class Critterer {
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public List<String> pagesNeededToGoTo = new LinkedList<String>();
     public long totalKilos;
+    public CrittererEat scramble;
 
+
+    public void addingurllist(){
+        if (arguments[1].contains("txt")){
+            File urlFile = new File(arguments[1]);
+            Scanner input = null;
+            try {
+                input = new Scanner(urlFile);
+            } catch (FileNotFoundException e) {
+            }
+
+            while (input.hasNextLine()) {
+                String theNextURL = input.nextLine();
+                pagesNeededToGoTo.add(theNextURL);
+            }
+        }
+    }
 
     public void load(String url) {
         String currentUrl;
-        CrittererEat scramble = new CrittererEat(arguments);
+        scramble = new CrittererEat(arguments);
         while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) {
             if (this.pagesNeededToGoTo.isEmpty()) {
                 currentUrl = url;
@@ -38,6 +52,19 @@ public class Critterer {
             scramble.critter(currentUrl);
             this.pagesNeededToGoTo.addAll(scramble.getLinks());
         }
+        printingFinalStats();
+    }
+
+    private String nextUrl() {
+        String nextUrl;
+        do {
+            nextUrl = this.pagesNeededToGoTo.remove(0);
+        } while (this.pagesAlreadyHit.contains(nextUrl));
+        this.pagesAlreadyHit.add(nextUrl);
+        return nextUrl;
+    }
+
+    public void printingFinalStats() {
         System.out.println("\n**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)");
         long totalBytesRead = scramble.gettotalBytesRead();
         totalKilos = totalBytesRead / 1024;
@@ -62,33 +89,13 @@ public class Critterer {
         System.out.println(pagesAlreadyHit);
     }
 
-    public void addingurllist(){
-        if (arguments[1].contains("txt")){
-            File urlFile = new File(arguments[1]);
-            Scanner input = null;
-            try {
-                input = new Scanner(urlFile);
-            } catch (FileNotFoundException e) {
-            }
-
-            while (input.hasNextLine()) {
-                pagesNeededToGoTo.add(input.nextLine());
-            }
-        }
-    }
-
-    private String nextUrl() {
-        String nextUrl;
-        do {
-            nextUrl = this.pagesNeededToGoTo.remove(0);
-        } while (this.pagesAlreadyHit.contains(nextUrl));
-        this.pagesAlreadyHit.add(nextUrl);
-        return nextUrl;
-    }
-
 
     public long gettotalKilos() {
         return totalKilos;
+    }
+
+    public List<String> getPagesNeededToGoTo() {
+        return pagesNeededToGoTo;
     }
 
 }

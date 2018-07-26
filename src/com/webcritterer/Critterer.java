@@ -8,13 +8,11 @@ public class Critterer {
 
     Critterer(String args[]){
         this.arguments = args;
-        this.urlFile = args[1];
-        this.maxPagesGoingTo = args[2];
+        this.maxPagesGoingTo = args[1];
         this.maximumPagesToGoTo =  Long.parseLong(maxPagesGoingTo);
     }
 
     public String[] arguments;
-    public String urlFile;
     public String maxPagesGoingTo;
     public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     public Set<String> pagesAlreadyHit = new HashSet<String>();
@@ -55,20 +53,6 @@ public class Critterer {
         System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
         float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
         System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
-    }
-
-    public void addingurllist(){
-        if (arguments[1].contains(".txt")){
-            File urlFile = new File(arguments[1]);
-            Scanner input = null;
-            try {
-                input = new Scanner(urlFile);
-            } catch (FileNotFoundException e) {
-            }
-            while (input.hasNextLine()) {
-                pagesNeededToGoTo.add(input.nextLine());
-            }
-        }
     }
 
     private String nextUrl() {

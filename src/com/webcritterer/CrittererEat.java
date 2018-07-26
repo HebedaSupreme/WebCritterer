@@ -5,7 +5,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,32 +14,16 @@ import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CrittererEat
-
-{
-    CrittererEat(String[] arguments){
-        this.args = arguments;
-        if (args[3].matches("[0-9]+")) {
-            this.bandwidthLimiterOptions = "true";
-            this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
-            this.assignedAvgKBS = args[3];
-            this.avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
-        } else {
-            this.bandwidthLimiterOptions = "false";
-            this.bandwidthLimiter = Boolean.parseBoolean(bandwidthLimiterOptions);
-        }
-    }
+public class CrittererEat {
 
     public String[] args;
-    public String bandwidthLimiterOptions;
     public boolean bandwidthLimiter;
     public String assignedAvgKBS;
     public long avgKilobytesPerSecond;
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
     //creates a timestamp for later use
-    long second = 1000; //1 second
-    float avgBytesPerSec = avgKilobytesPerSecond * 1024;
+    //long second = 1000; //1 second
     long neededSleepTime;
     long totalBytesRead;
     long totalDiffInTimestamps;
@@ -53,9 +36,21 @@ public class CrittererEat
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
 
+    CrittererEat(String[] arguments){
+        this.args = arguments;
+        if (args[2].matches("[0-9]+")) {
+            this.bandwidthLimiter = true;
+            this.assignedAvgKBS = args[2];
+        } else {
+            this.bandwidthLimiter = false;
+        }
+    }
+
+
     public List<String> getLinks() {
         return this.links;
     }
+
 
     public Document critter(String url) {
         try {
@@ -72,6 +67,8 @@ public class CrittererEat
                 System.out.println("Bytes Read: " + bytesRead);
                 totalBytesRead += bytesRead;
                 totalDiffInTimestamps += diffInTimestamps;
+                avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
+                float avgBytesPerSec = avgKilobytesPerSecond * 1024;
 
                 theoreticalSleepTime = (((bytesRead * 1000) / avgBytesPerSec) - diffInTimestamps);
                 neededSleepTime = (long) (theoreticalSleepTime);
@@ -183,4 +180,3 @@ public class CrittererEat
         return maxBytesReadAtOnce;
     }
 }
-

@@ -1,6 +1,7 @@
 package com.webcritterer;
 
 import java.util.List;
+import java.util.Set;
 
 public class CrittererLaunchpad {
 
@@ -14,6 +15,7 @@ public class CrittererLaunchpad {
     long totalTimeRunnning;
     long startTimestamp;
     long endTimestamp;
+    Set pagesAlreadyHit = critterer.getPagesAlreadyHit();
 
 
     CrittererLaunchpad(String args[]) {
@@ -72,23 +74,27 @@ public class CrittererLaunchpad {
     }
 
     public void launch() {
-        String seedURL = args[0];
         startTimestamp = System.currentTimeMillis();
         critterer = new Critterer(args);
         critterer.addingurllist();
-        critterer.load("https://" + seedURL);
+        critterer.load("https://" + args[0]);
         endTimestamp = System.currentTimeMillis();
         printMoreFinalStats();
+        System.out.println(pagesAlreadyHit);
 
     }
 
     public void launchForFile() {
+        startTimestamp = System.currentTimeMillis();
         critterer = new Critterer(args);
         critterer.addingurllist();
         List<String> urlList = critterer.getPagesNeededToGoTo();
         String urlConvertedToString = String.valueOf(urlList.get(0));
         args[0] = urlConvertedToString;
         critterer.load("https://" + args[0]);
+        endTimestamp = System.currentTimeMillis();
+        printMoreFinalStats();
+        System.out.println(pagesAlreadyHit);
     }
 
     public void printMoreFinalStats() {

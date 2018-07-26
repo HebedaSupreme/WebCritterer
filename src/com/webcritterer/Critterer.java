@@ -86,12 +86,15 @@ public class Critterer {
         float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
         System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
         System.out.println("List of Pages Crittered: ");
-        System.out.println(pagesAlreadyHit);
     }
 
 
     public long gettotalKilos() {
         return totalKilos;
+    }
+
+    public Set<String> getPagesAlreadyHit() {
+        return pagesAlreadyHit;
     }
 
     public List<String> getPagesNeededToGoTo() {

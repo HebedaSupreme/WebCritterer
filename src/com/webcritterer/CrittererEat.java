@@ -68,15 +68,15 @@ public class CrittererEat {
                 long currentTimestamp = System.currentTimeMillis(); //
                 CountingInputStream someCountingStream = new CountingInputStream(iStream);
                 diffInTimestamps = currentTimestamp - previousTimestamp; //
-                System.out.println("Time Spent Downloading: " + diffInTimestamps);
+                System.out.println("Time Spent Downloading: " + diffInTimestamps); //
                 Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
                 bytesRead = someCountingStream.getCount();
                 System.out.println("Bytes Read: " + bytesRead);
                 totalBytesRead += bytesRead;
-                totalDiffInTimestamps += diffInTimestamps;
-                avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
-                avgBytesPerSec = avgKilobytesPerSecond * 1024;
-                recordNSleep();
+                totalDiffInTimestamps += diffInTimestamps; //
+                avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
+                avgBytesPerSec = avgKilobytesPerSecond * 1024; //
+                recordNSleep(); //
                 this.htmlDocument = htmlDocument;
 
             } else {

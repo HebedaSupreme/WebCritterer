@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class CrittererLaunchpad {
 
-    //0...url or file file   1...pages 2...limiter
+    //0...url or file file   1...pages 2...bandwidthlimiter 3...websiteboundary
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
@@ -33,7 +33,7 @@ public class CrittererLaunchpad {
 
     public void launchpad() {
 
-        if (args.length < 2) {
+        if (args.length < 3) {
             errorMessaging();
         } else {
             if (args[0].contains("https://")) {

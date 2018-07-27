@@ -65,14 +65,11 @@ public class Critterer {
 
     private String nextUrl() {
         String nextUrl;
-        nextUrl = this.pagesNeededToGoTo.pop();
-        if(pagesAlreadyHit.contains(nextUrl)) {
-            nextUrl();
-        } else {
-            this.pagesAlreadyHit.add(nextUrl);
-            return nextUrl;
-        }
-        return nextUrl();
+        do {
+            nextUrl = this.pagesNeededToGoTo.remove(0);
+        } while (this.pagesAlreadyHit.contains(nextUrl));
+        this.pagesAlreadyHit.add(nextUrl);
+        return nextUrl;
     }
 
     public void printingFinalStats() {

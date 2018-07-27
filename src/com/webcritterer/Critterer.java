@@ -6,11 +6,11 @@ import java.util.*;
 
 public class Critterer {
 
-    Critterer(String args[]){
+    Critterer(String args[]) {
         this.arguments = args;
         this.maxPagesGoingTo = args[1];
         this.urlFile = args[0];
-        maximumPagesToGoTo =  Long.parseLong(maxPagesGoingTo);
+        maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
     }
 
     public String[] arguments;
@@ -18,23 +18,31 @@ public class Critterer {
     public String urlFile;
     public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     public Set<String> pagesAlreadyHit = new HashSet<String>();
-    public List<String> pagesNeededToGoTo = new LinkedList<String>();
+    public LinkedList<String> pagesNeededToGoTo = new LinkedList<String>();
     public long totalKilos;
     public CrittererEat scramble;
+    public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
+    public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
 
 
-    public void addingurllist(){
-        if (arguments[0].contains("txt")){
+    public void addingurllist() {
+        if (arguments[0].contains("txt")) {
             File urlFile = new File(arguments[0]);
             Scanner input = null;
             try {
                 input = new Scanner(urlFile);
             } catch (FileNotFoundException e) {
+                System.out.println(errorMsg);
+                System.out.println(usageMsg);
             }
-
-            while (input.hasNextLine()) {
-                String theNextURL = input.nextLine();
-                pagesNeededToGoTo.add(theNextURL);
+            try {
+                while (input.hasNextLine()) {
+                    String theNextURL = input.nextLine();
+                    pagesNeededToGoTo.add("https://" + theNextURL);
+                }
+            } catch (NullPointerException bleh) {
+                System.out.println(errorMsg);
+                System.out.println(usageMsg);
             }
         }
     }
@@ -57,11 +65,14 @@ public class Critterer {
 
     private String nextUrl() {
         String nextUrl;
-        do {
-            nextUrl = this.pagesNeededToGoTo.remove(0);
-        } while (this.pagesAlreadyHit.contains(nextUrl));
-        this.pagesAlreadyHit.add(nextUrl);
-        return nextUrl;
+        nextUrl = this.pagesNeededToGoTo.pop();
+        if(pagesAlreadyHit.contains(nextUrl)) {
+            nextUrl();
+        } else {
+            this.pagesAlreadyHit.add(nextUrl);
+            return nextUrl;
+        }
+        return nextUrl();
     }
 
     public void printingFinalStats() {
@@ -85,7 +96,6 @@ public class Critterer {
         System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
         float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
         System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
-        System.out.println("List of Pages Crittered: ");
     }
 
 

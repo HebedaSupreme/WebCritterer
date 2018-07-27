@@ -33,6 +33,12 @@ public class CrittererEat {
     long maxBytesReadAtOnce;
     float totalTruncatedValue;
     float totalTheoryTime;
+    long bytesRead;
+    float avgBytesPerSec;
+    long diffInTimestamps;
+    public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
+    public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
+
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
 
@@ -55,48 +61,27 @@ public class CrittererEat {
     public Document critter(String url) {
         try {
             if (bandwidthLimiter) {
-                URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
-                long previousTimestamp = System.currentTimeMillis();
+                URLConnection connection = new URL(url).openConnection();
+                System.out.println(url);
+                long previousTimestamp = System.currentTimeMillis(); //
                 InputStream iStream = connection.getInputStream();
-                long currentTimestamp = System.currentTimeMillis();
+                long currentTimestamp = System.currentTimeMillis(); //
                 CountingInputStream someCountingStream = new CountingInputStream(iStream);
-                long diffInTimestamps = currentTimestamp - previousTimestamp;
+                diffInTimestamps = currentTimestamp - previousTimestamp; //
                 System.out.println("Time Spent Downloading: " + diffInTimestamps);
                 Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-                long bytesRead = someCountingStream.getCount();
+                bytesRead = someCountingStream.getCount();
                 System.out.println("Bytes Read: " + bytesRead);
                 totalBytesRead += bytesRead;
                 totalDiffInTimestamps += diffInTimestamps;
                 avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS);
-                float avgBytesPerSec = avgKilobytesPerSecond * 1024;
-
-                theoreticalSleepTime = (((bytesRead * 1000) / avgBytesPerSec) - diffInTimestamps);
-                neededSleepTime = (long) (theoreticalSleepTime);
-                truncatedValue = (theoreticalSleepTime - neededSleepTime);
-
-                if (theoreticalSleepTime > 0) {
-                    System.out.println("Theoretical Sleep Time: " + theoreticalSleepTime);
-                    totalTheoryTime += theoreticalSleepTime;
-                }
-
-                if (neededSleepTime > 0) {
-                    totalSleepTime += neededSleepTime;
-                    System.out.println("neededSleepTime" + neededSleepTime);
-                    Thread.sleep(neededSleepTime);
-                }
-
-                if (truncatedValue > 0) {
-                    System.out.println("Truncated Time: " + truncatedValue);
-                    totalTruncatedValue += truncatedValue;
-                }
-                if (bytesRead > maxBytesReadAtOnce) {
-                    maxBytesReadAtOnce = bytesRead;
-                }
-
+                avgBytesPerSec = avgKilobytesPerSecond * 1024;
+                recordNSleep();
                 this.htmlDocument = htmlDocument;
 
             } else {
                 URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
+                System.out.println(url);
                 InputStream iStream = connection.getInputStream();
                 CountingInputStream someCountingStream = new CountingInputStream(iStream);
                 Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
@@ -112,11 +97,39 @@ public class CrittererEat {
             digest(htmlDocument);
 
         } catch (IOException ioe) {
-
-        } catch (InterruptedException e) {
-
+        } catch(java.lang.IllegalArgumentException emptyLineOnURLFile) {
+            System.out.println(errorMsg);
+            System.out.println(usageMsg);
         }
         return htmlDocument;
+    }
+
+    public void recordNSleep() {
+        theoreticalSleepTime = (((bytesRead * 1000) / avgBytesPerSec) - diffInTimestamps);
+        neededSleepTime = (long) (theoreticalSleepTime);
+        truncatedValue = (theoreticalSleepTime - neededSleepTime);
+
+        if (theoreticalSleepTime > 0) {
+            System.out.println("Theoretical Sleep Time: " + theoreticalSleepTime);
+            totalTheoryTime += theoreticalSleepTime;
+        }
+
+        if (neededSleepTime > 0) {
+            totalSleepTime += neededSleepTime;
+            System.out.println("neededSleepTime" + neededSleepTime);
+            try {
+                Thread.sleep(neededSleepTime);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        if (truncatedValue > 0) {
+            System.out.println("Truncated Time: " + truncatedValue);
+            totalTruncatedValue += truncatedValue;
+        }
+        if (bytesRead > maxBytesReadAtOnce) {
+            maxBytesReadAtOnce = bytesRead;
+        }
     }
 
     public boolean digest(Document htmlDocument) {
@@ -128,9 +141,6 @@ public class CrittererEat {
             PrintWriter pw = null;
 
             pw = new PrintWriter((titles.text()) + ".txt");
-
-            //Set the printstream out to a text file
-            //pw.println("From page at:" + url); print a message
 
             for (Element title : titles)
                 pw.println(title.text()); //print the title
@@ -151,7 +161,6 @@ public class CrittererEat {
             return true;
 
         } catch (FileNotFoundException e) {
-
         }
         return false;
     }

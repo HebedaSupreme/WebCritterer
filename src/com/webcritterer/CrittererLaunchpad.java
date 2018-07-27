@@ -15,7 +15,6 @@ public class CrittererLaunchpad {
     long totalTimeRunnning;
     long startTimestamp;
     long endTimestamp;
-    Set pagesAlreadyHit = critterer.getPagesAlreadyHit();
 
 
     CrittererLaunchpad(String args[]) {
@@ -37,7 +36,7 @@ public class CrittererLaunchpad {
         if (args.length < 2) {
             errorMessaging();
         } else {
-            if (args[0].contains("www.") || args[0].contains(".org") || args[0].contains(".com")) {
+            if (args[0].contains("https://")) {
                 if (args[1].matches("[0-9]+")) {
                     if (args[2].matches("[0-9]+")) {
                         System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages At Bandwidth Limit Of " + args[2] + " Kilobytes/Second");
@@ -58,13 +57,13 @@ public class CrittererLaunchpad {
                     if (args[2].matches("[0-9]+")) {
                         System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages At Bandwidth Of " + args[2] + " Kilobytes/Second");
                         askSpecsMessaging();
-                        launchForFile();
+                        launch();
 
                     } else {
                         args[2] = "false";
                         System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages With No Bandwidth Limit");
                         askSpecsMessaging();
-                        launchForFile();
+                        launch();
                     }
                 } else {
                     errorMessaging();
@@ -77,25 +76,11 @@ public class CrittererLaunchpad {
         startTimestamp = System.currentTimeMillis();
         critterer = new Critterer(args);
         critterer.addingurllist();
-        critterer.load("https://" + args[0]);
+        critterer.load(args[0]);
         endTimestamp = System.currentTimeMillis();
         printMoreFinalStats();
-        System.out.println(pagesAlreadyHit);
-
     }
 
-    public void launchForFile() {
-        startTimestamp = System.currentTimeMillis();
-        critterer = new Critterer(args);
-        critterer.addingurllist();
-        List<String> urlList = critterer.getPagesNeededToGoTo();
-        String urlConvertedToString = String.valueOf(urlList.get(0));
-        args[0] = urlConvertedToString;
-        critterer.load("https://" + args[0]);
-        endTimestamp = System.currentTimeMillis();
-        printMoreFinalStats();
-        System.out.println(pagesAlreadyHit);
-    }
 
     public void printMoreFinalStats() {
         totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;

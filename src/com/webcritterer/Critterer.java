@@ -93,6 +93,8 @@ public class Critterer {
         System.out.println("Maximum Kilobytes/Sec: " + maxKilosReadAtOnce + " kilobytes/sec");
         float totalTimeRunningByAddition = (float) totalTimeDownloadingSec + totalSleepSec;
         System.out.println("Total Time Spent Running By Addition of Sleeping and Downloading: " + totalTimeRunningByAddition + " seconds");
+        long totalDigestTime = scramble.getTotalDigestTime();
+        System.out.println("Total Time Spent Processing and Writing: " + totalDigestTime + " millis");
     }
 
 

@@ -38,6 +38,7 @@ public class CrittererEat {
     long diffInTimestamps;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
     public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
+    long totalDigestTime;
 
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
@@ -133,6 +134,7 @@ public class CrittererEat {
     }
 
     public boolean digest(Document htmlDocument) {
+        long digestTimestamp = System.currentTimeMillis();
         //Will parse content from <title> headers and make them titles of printed text documents
         try {
             String filename = "<title></title>";
@@ -162,6 +164,9 @@ public class CrittererEat {
 
         } catch (FileNotFoundException e) {
         }
+        long digestEndTimestamp = System.currentTimeMillis();
+        long digestTime = digestEndTimestamp - digestTimestamp;
+        totalDigestTime += digestTime;
         return false;
     }
 
@@ -187,5 +192,9 @@ public class CrittererEat {
 
     public long getmaxBytesReadAtOnce() {
         return maxBytesReadAtOnce;
+    }
+
+    public long getTotalDigestTime() {
+        return totalDigestTime;
     }
 }

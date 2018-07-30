@@ -134,9 +134,9 @@ public class CrittererEat {
     }
 
     public boolean digest(Document htmlDocument) {
-        long digestTimestamp = System.currentTimeMillis();
         //Will parse content from <title> headers and make them titles of printed text documents
         try {
+            long digestTimestamp = System.currentTimeMillis();
             String filename = "<title></title>";
             Jsoup.parse(filename);
             Elements titles = htmlDocument.select("title");
@@ -159,14 +159,14 @@ public class CrittererEat {
             System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
             for (Element link : linksOnPage) {
                 this.links.add(link.absUrl("href"));
+                long digestEndTimestamp = System.currentTimeMillis();
+                long digestTime = digestEndTimestamp - digestTimestamp;
+                totalDigestTime += digestTime;
             }
             return true;
 
         } catch (FileNotFoundException e) {
         }
-        long digestEndTimestamp = System.currentTimeMillis();
-        long digestTime = digestEndTimestamp - digestTimestamp;
-        totalDigestTime += digestTime;
         return false;
     }
 

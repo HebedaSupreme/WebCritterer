@@ -2,6 +2,8 @@ package com.webcritterer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 public class Critterer {
@@ -19,10 +21,16 @@ public class Critterer {
     public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public LinkedList<String> pagesNeededToGoTo = new LinkedList<String>();
+    public LinkedList<String> originalURLs = new LinkedList<String>();
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
     public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
+    public LinkedList<String> originalDomains = new LinkedList<String>();
+    public List scrambledLinks;
+    public String nextUrlScrambled;
+    public boolean domainMatch;
+    public boolean domainRestricter = Boolean.parseBoolean(arguments[3]);
 
 
     public void addingurllist() {
@@ -38,7 +46,19 @@ public class Critterer {
             try {
                 while (input.hasNextLine()) {
                     String theNextURL = input.nextLine();
-                    pagesNeededToGoTo.add("https://" + theNextURL);
+                    originalURLs.add("https://" + theNextURL);
+                    if(domainRestricter) {
+                        URI uri;
+                        try {
+                            uri = new URI(theNextURL);
+                            String hostname = uri.getHost();
+                            if (hostname != null) {
+                                originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
+                            }
+                        } catch (URISyntaxException e) {
+                        }
+                    }
+                    pagesNeededToGoTo = originalURLs;
                 }
             } catch (NullPointerException bleh) {
                 System.out.println(errorMsg);
@@ -58,9 +78,25 @@ public class Critterer {
                 currentUrl = this.nextUrl();
             }
             scramble.critter(currentUrl);
-            this.pagesNeededToGoTo.addAll(scramble.getLinks());
+            scrambledLinks = scramble.getLinks();
+            while(!scrambledLinks.isEmpty()) {
+                nextUrlScrambled = (String) this.scrambledLinks.remove(0);
+                if(domainRestricter) {
+                    domainCompare();
+
+            }
+            if(domainMatch) {
+                this.pagesNeededToGoTo.add(nextUrlScrambled);
+            }
+            }
         }
         printingFinalStats();
+    }
+
+
+    public boolean domainCompare() {
+        domainMatch = originalDomains.stream().anyMatch(nextUrlScrambled::contains);
+        return domainMatch;
     }
 
     private String nextUrl() {
@@ -73,7 +109,7 @@ public class Critterer {
     }
 
     public void printingFinalStats() {
-        System.out.println("\n**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)");
+        System.out.println("**Done** Visited " + this.pagesAlreadyHit.size() + " web page(s)");
         long totalBytesRead = scramble.gettotalBytesRead();
         totalKilos = totalBytesRead / 1024;
         System.out.println("TotalKilos: " + totalKilos);

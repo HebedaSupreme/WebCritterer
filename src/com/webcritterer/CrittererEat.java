@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
@@ -97,7 +99,7 @@ public class CrittererEat {
             }
             digest(htmlDocument);
 
-        } catch (IOException ioe) {
+        } catch(IOException ioe) {
         } catch(java.lang.IllegalArgumentException emptyLineOnURLFile) {
             System.out.println(errorMsg);
             System.out.println(usageMsg);

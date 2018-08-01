@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class CrittererLaunchpad {
 
-    //0...url or file file   1...pages 2...bandwidthlimiter 3...websiteboundary
+    //0...url or file file   1...pages 2...bandwidthlimiter 3...domainboundary
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";

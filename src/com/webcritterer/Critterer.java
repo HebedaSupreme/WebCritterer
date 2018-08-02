@@ -27,13 +27,12 @@ public class Critterer {
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
     public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
     public LinkedList<String> originalDomains = new LinkedList<String>();
-    public List scrambledLinks;
     public String nextUrlScrambled;
-    public boolean domainMatch;
-    public boolean domainRestricter = Boolean.parseBoolean(arguments[3]);
+    public boolean domainRestricter;
 
 
     public void addingurllist() {
+        domainRestricter = Boolean.parseBoolean(arguments[3]);
         if (arguments[0].contains("txt")) {
             File urlFile = new File(arguments[0]);
             Scanner input = null;
@@ -43,26 +42,27 @@ public class Critterer {
                 System.out.println(errorMsg);
                 System.out.println(usageMsg);
             }
-            try {
-                while (input.hasNextLine()) {
-                    String theNextURL = input.nextLine();
-                    originalURLs.add("https://" + theNextURL);
-                    if(domainRestricter) {
-                        URI uri;
-                        try {
-                            uri = new URI(theNextURL);
-                            String hostname = uri.getHost();
-                            if (hostname != null) {
-                                originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
-                            }
-                        } catch (URISyntaxException e) {
+
+            while (input.hasNextLine()) {
+                String theNextURL = input.nextLine();
+                pagesNeededToGoTo.add(theNextURL);
+                if(domainRestricter) {
+                    URI uri;
+                    try {
+                        uri = new URI(theNextURL);
+                        String hostname = uri.getHost();
+                        if (hostname != null) {
+                            originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
+                        } else {
+                            throw new URISyntaxException(theNextURL, "bad domain name");
                         }
+                    } catch (URISyntaxException e) {
+                        // print message about format
+                        // SYstem exit
+                        System.out.println(e.getMessage());
+                        System.exit(1);
                     }
-                    pagesNeededToGoTo = originalURLs;
                 }
-            } catch (NullPointerException bleh) {
-                System.out.println(errorMsg);
-                System.out.println(usageMsg);
             }
         }
     }
@@ -78,25 +78,42 @@ public class Critterer {
                 currentUrl = this.nextUrl();
             }
             scramble.critter(currentUrl);
-            scrambledLinks = scramble.getLinks();
-            while(!scrambledLinks.isEmpty()) {
-                nextUrlScrambled = (String) this.scrambledLinks.remove(0);
-                if(domainRestricter) {
-                    domainCompare();
+            if(domainRestricter) {
+                LinkedList<String> scrambledLinks = new LinkedList<String>();
+                scrambledLinks.addAll(scramble.getLinks());
+                //System.out.println("Scrambled links");
+                for (String link : scrambledLinks) {
+                    System.out.println(link);
+                }
 
-            }
-            if(domainMatch) {
-                this.pagesNeededToGoTo.add(nextUrlScrambled);
-            }
+                while(!scrambledLinks.isEmpty()) {
+                    nextUrlScrambled = scrambledLinks.remove(0);
+                    if(domainCompare(nextUrlScrambled)) {
+                        System.out.format("%s matched %n", nextUrlScrambled);
+                        this.pagesNeededToGoTo.add(nextUrlScrambled);
+                    } else {
+                        System.out.format("%s did not match %n", nextUrlScrambled);
+                    }
+                }
+            } else {
+                this.pagesNeededToGoTo.addAll(scramble.getLinks());
             }
         }
         printingFinalStats();
     }
 
-
-    public boolean domainCompare() {
-        domainMatch = originalDomains.stream().anyMatch(nextUrlScrambled::contains);
-        return domainMatch;
+    public boolean domainCompare(String nextUrlScrambled) {
+        try {
+            for (String s : originalDomains) {
+                String[] splitDomain = nextUrlScrambled.split("/");
+                String actualSplitDomain = splitDomain[2];
+                if (actualSplitDomain.contains(s)) {
+                    return true;
+                }
+            }
+        } catch(ArrayIndexOutOfBoundsException ar) {
+        }
+        return false;
     }
 
     private String nextUrl() {

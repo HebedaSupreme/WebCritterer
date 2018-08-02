@@ -58,7 +58,7 @@ public class Critterer {
                         }
                     } catch (URISyntaxException e) {
                         // print message about format
-                        // SYstem exit
+                        // System exit
                         System.out.println(e.getMessage());
                         System.exit(1);
                     }
@@ -104,10 +104,10 @@ public class Critterer {
 
     public boolean domainCompare(String nextUrlScrambled) {
         try {
-            for (String s : originalDomains) {
+            for (String anyOfOGDomains : originalDomains) {
                 String[] splitDomain = nextUrlScrambled.split("/");
                 String actualSplitDomain = splitDomain[2];
-                if (actualSplitDomain.contains(s)) {
+                if (actualSplitDomain.contains(anyOfOGDomains)) {
                     return true;
                 }
             }

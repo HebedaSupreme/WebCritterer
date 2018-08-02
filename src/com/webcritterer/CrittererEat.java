@@ -9,12 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
+import java.io.FileOutputStream;
+
 
 public class CrittererEat {
 
@@ -65,39 +65,93 @@ public class CrittererEat {
         try {
             if (bandwidthLimiter) {
                 URLConnection connection = new URL(url).openConnection();
-                System.out.println(url);
-                long previousTimestamp = System.currentTimeMillis(); //
-                InputStream iStream = connection.getInputStream();
-                long currentTimestamp = System.currentTimeMillis(); //
-                CountingInputStream someCountingStream = new CountingInputStream(iStream);
-                diffInTimestamps = currentTimestamp - previousTimestamp; //
-                System.out.println("Time Spent Downloading: " + diffInTimestamps); //
-                Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-                bytesRead = someCountingStream.getCount();
-                System.out.println("Bytes Read: " + bytesRead);
-                totalBytesRead += bytesRead;
-                totalDiffInTimestamps += diffInTimestamps; //
-                avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
-                avgBytesPerSec = avgKilobytesPerSecond * 1024; //
-                recordNSleep(); //
-                this.htmlDocument = htmlDocument;
+                connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+                if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
+                    System.out.println("Page from: " + url);
+                    long previousTimestamp = System.currentTimeMillis(); //
+                    InputStream iStream = connection.getInputStream();
+                    long currentTimestamp = System.currentTimeMillis(); //
+                    CountingInputStream someCountingStream = new CountingInputStream(iStream);
+                    diffInTimestamps = currentTimestamp - previousTimestamp; //
+                    System.out.println("Time Spent Downloading: " + diffInTimestamps); //
+                    Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+                    bytesRead = someCountingStream.getCount();
+                    System.out.println("Bytes Read: " + bytesRead);
+                    totalBytesRead += bytesRead;
+                    totalDiffInTimestamps += diffInTimestamps; //
+                    avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
+                    avgBytesPerSec = avgKilobytesPerSecond * 1024; //
+                    recordNSleep(); //
+                    this.htmlDocument = htmlDocument;
+                    digest(htmlDocument);
+                    
+                } else {
+                    String pdfURL = String.valueOf(url);
+                    String[] splitPDFURL = pdfURL.split("//");
+                    String pdfDomain = splitPDFURL[1];
+                    String pdfName = pdfDomain.replaceAll("/", "_");
+
+                    byte[] ba = new byte[1024];
+                    int baLength;
+
+                    FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
+
+                    // Read the PDF from the URL and save to a local file
+                    long previousTimestamp = System.currentTimeMillis();
+                    InputStream pdfStream = connection.getInputStream();
+                    long currentTimestamp = System.currentTimeMillis();
+                    CountingInputStream someCountingStream = new CountingInputStream(pdfStream);
+                    diffInTimestamps = currentTimestamp - previousTimestamp; //
+                    System.out.println("Time Spent Downloading: " + diffInTimestamps);
+                    bytesRead = someCountingStream.getCount();
+                    System.out.println("Bytes Read: " + bytesRead);
+                    totalBytesRead += bytesRead;
+                    totalDiffInTimestamps += diffInTimestamps; //
+                    avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
+                    avgBytesPerSec = avgKilobytesPerSecond * 1024; //
+                    recordNSleep(); /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    while ((baLength = pdfStream.read(ba)) != -1) {
+                        pdfFileStream.write(ba, 0, baLength);
+                    }
+                    pdfFileStream.flush();
+                    pdfFileStream.close();
+                    pdfStream.close();
+                }
 
             } else {
-                URLConnection connection = new URL(url).openConnection(); //create a URL connection to the URL
-                System.out.println(url);
-                InputStream iStream = connection.getInputStream();
-                CountingInputStream someCountingStream = new CountingInputStream(iStream);
-                Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-                long bytesRead = someCountingStream.getCount();
-                System.out.println("Bytes Read: " + bytesRead);
-                totalBytesRead += bytesRead;
-                this.htmlDocument = htmlDocument;
+                URLConnection connection = new URL(url).openConnection();
+                connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+                if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
+                    System.out.println("Page from: " + url);
+                    InputStream iStream = connection.getInputStream();
+                    CountingInputStream someCountingStream = new CountingInputStream(iStream);
+                    Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+                    long bytesRead = someCountingStream.getCount();
+                    System.out.println("Bytes Read: " + bytesRead);
+                    totalBytesRead += bytesRead;
+                    digest(htmlDocument);
+                } else {
+                    String pdfURL = String.valueOf(url);
+                    String[] splitPDFURL = pdfURL.split("//");
+                    String pdfDomain = splitPDFURL[1];
+                    String pdfName = pdfDomain.replaceAll("/", "_");
 
-                if (bytesRead > maxBytesReadAtOnce) {
-                    maxBytesReadAtOnce = bytesRead;
+                    byte[] ba = new byte[1024];
+                    int baLength;
+
+                    FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
+
+                    // Read the PDF from the URL and save to a local file
+                    InputStream pdfStream = connection.getInputStream();
+                    while ((baLength = pdfStream.read(ba)) != -1) {
+                        pdfFileStream.write(ba, 0, baLength);
+                    }
+                    pdfFileStream.flush();
+                    pdfFileStream.close();
+                    pdfStream.close();
                 }
             }
-            digest(htmlDocument);
 
         } catch(IOException ioe) {
         } catch(java.lang.IllegalArgumentException emptyLineOnURLFile) {
@@ -140,7 +194,7 @@ public class CrittererEat {
         try {
             long digestTimestamp = System.currentTimeMillis();
             String filename = "<title></title>";
-            Jsoup.parse(filename);
+            Jsoup.parse(filename, "UTF-8");
             Elements titles = htmlDocument.select("title");
             PrintWriter pw = null;
 
@@ -151,8 +205,8 @@ public class CrittererEat {
 
             //Parses the content from the page and prints it into text file
             String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
-            Jsoup.parse(html);
-            Elements paragraphs = htmlDocument.select("p");
+            Jsoup.parse(html, "UTF-8");
+            Elements paragraphs = htmlDocument.select("body");
             for (Element p : paragraphs)
                 pw.println(p.text());
             //Collects links and adds them to list while counting number found
@@ -169,6 +223,7 @@ public class CrittererEat {
 
         } catch (FileNotFoundException e) {
         }
+
         return false;
     }
 

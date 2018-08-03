@@ -41,6 +41,8 @@ public class CrittererEat {
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
     public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
     long totalDigestTime;
+    public boolean fileOutputClump;
+    public String articlesClump;
 
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
@@ -53,6 +55,7 @@ public class CrittererEat {
         } else {
             this.bandwidthLimiter = false;
         }
+        fileOutputClump = Boolean.parseBoolean(arguments[4]);
     }
 
 
@@ -62,6 +65,7 @@ public class CrittererEat {
 
 
     public Document critter(String url) {
+
         try {
             if (bandwidthLimiter) {
                 URLConnection connection = new URL(url).openConnection();
@@ -83,8 +87,13 @@ public class CrittererEat {
                     avgBytesPerSec = avgKilobytesPerSecond * 1024; //
                     recordNSleep(); //
                     this.htmlDocument = htmlDocument;
-                    digest(htmlDocument);
-                    
+
+                    if(fileOutputClump) {
+                        digestClump(htmlDocument);
+                    } else {
+                        digest(htmlDocument);
+                    }
+
                 } else {
                     String pdfURL = String.valueOf(url);
                     String[] splitPDFURL = pdfURL.split("//");
@@ -130,7 +139,12 @@ public class CrittererEat {
                     long bytesRead = someCountingStream.getCount();
                     System.out.println("Bytes Read: " + bytesRead);
                     totalBytesRead += bytesRead;
-                    digest(htmlDocument);
+
+                    if(fileOutputClump) {
+                        digestClump(htmlDocument);
+                    } else {
+                        digest(htmlDocument);
+                    }
                 } else {
                     String pdfURL = String.valueOf(url);
                     String[] splitPDFURL = pdfURL.split("//");
@@ -157,6 +171,7 @@ public class CrittererEat {
         } catch(java.lang.IllegalArgumentException emptyLineOnURLFile) {
             System.out.println(errorMsg);
             System.out.println(usageMsg);
+        } catch(NullPointerException nu) {
         }
         return htmlDocument;
     }
@@ -227,6 +242,32 @@ public class CrittererEat {
         return false;
     }
 
+    public void digestClump(Document htmlDocument) {
+
+        long digestTimestamp = System.currentTimeMillis();
+        String filename = "<title></title>";
+        Jsoup.parse(filename, "UTF-8");
+        Elements titles = htmlDocument.select("title");
+        String titleString = titles.text() + "\n\n";
+
+        String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
+        Jsoup.parse(html, "UTF-8");
+        Elements paragraphs = htmlDocument.select("body");
+        String paragraphString = paragraphs.text() + "\n\n";
+
+        String singleArticle = titleString + paragraphString + "\n\n";
+        articlesClump += singleArticle;
+
+        Elements linksOnPage = htmlDocument.select("a[href]");
+        System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
+        for (Element link : linksOnPage) {
+            this.links.add(link.absUrl("href"));
+            long digestEndTimestamp = System.currentTimeMillis();
+            long digestTime = digestEndTimestamp - digestTimestamp;
+            totalDigestTime += digestTime;
+        }
+    }
+
     public long gettotalBytesRead() {
         return totalBytesRead;
     }
@@ -253,5 +294,9 @@ public class CrittererEat {
 
     public long getTotalDigestTime() {
         return totalDigestTime;
+    }
+
+    public String getArticlesClump() {
+        return articlesClump;
     }
 }

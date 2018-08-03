@@ -2,18 +2,12 @@ package com.webcritterer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
 public class Critterer {
-
-    Critterer(String args[]) {
-        this.arguments = args;
-        this.maxPagesGoingTo = args[1];
-        this.urlFile = args[0];
-        maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
-    }
 
     public String[] arguments;
     public String maxPagesGoingTo;
@@ -29,6 +23,16 @@ public class Critterer {
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
+    public boolean fileOutputClump;
+
+
+    Critterer(String args[]) {
+        this.arguments = args;
+        this.maxPagesGoingTo = args[1];
+        this.urlFile = args[0];
+        maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
+        fileOutputClump = Boolean.parseBoolean(arguments[4]);
+    }
 
 
     public void addingurllist() {
@@ -47,21 +51,7 @@ public class Critterer {
                 String theNextURL = input.nextLine();
                 pagesNeededToGoTo.add(theNextURL);
                 if(domainRestricter) {
-                    URI uri;
-                    try {
-                        uri = new URI(theNextURL);
-                        String hostname = uri.getHost();
-                        if (hostname != null) {
-                            originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
-                        } else {
-                            throw new URISyntaxException(theNextURL, "bad domain name");
-                        }
-                    } catch (URISyntaxException e) {
-                        // print message about format
-                        // System exit
-                        System.out.println(e.getMessage());
-                        System.exit(1);
-                    }
+                    ogDomainsExtractor(theNextURL);
                 }
             }
         }
@@ -89,17 +79,39 @@ public class Critterer {
                 while(!scrambledLinks.isEmpty()) {
                     nextUrlScrambled = scrambledLinks.remove(0);
                     if(domainCompare(nextUrlScrambled)) {
-                        System.out.format("%s matched %n", nextUrlScrambled);
+                        //System.out.format("%s matched %n", nextUrlScrambled);
                         this.pagesNeededToGoTo.add(nextUrlScrambled);
-                    } else {
+                    } /* else {
                         System.out.format("%s did not match %n", nextUrlScrambled);
-                    }
+                    } */
                 }
             } else {
                 this.pagesNeededToGoTo.addAll(scramble.getLinks());
             }
+
+            if(fileOutputClump) {
+                clumpNDump();
+            }
         }
         printingFinalStats();
+    }
+
+    public void ogDomainsExtractor(String theNextURL) {
+        URI uri;
+        try {
+            uri = new URI(theNextURL);
+            String hostname = uri.getHost();
+            if (hostname != null) {
+                originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
+            } else {
+                throw new URISyntaxException(theNextURL, "bad domain name");
+            }
+        } catch (URISyntaxException e) {
+            // print message about format
+            // System exit
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     public boolean domainCompare(String nextUrlScrambled) {
@@ -123,6 +135,16 @@ public class Critterer {
         } while (this.pagesAlreadyHit.contains(nextUrl));
         this.pagesAlreadyHit.add(nextUrl);
         return nextUrl;
+    }
+
+    public void clumpNDump() {
+        try {
+            PrintWriter pw = new PrintWriter("Content crawled from " + originalDomains + ".txt");
+            pw.println(scramble.getArticlesClump());
+            pw.close();
+        } catch (FileNotFoundException e) {
+        }
+
     }
 
     public void printingFinalStats() {

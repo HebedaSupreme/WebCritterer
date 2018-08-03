@@ -37,6 +37,11 @@ public class Critterer {
 
     public void addingurllist() {
         domainRestricter = Boolean.parseBoolean(arguments[3]);
+        if (arguments[0].contains("https://")) {
+            if(domainRestricter) {
+                ogDomainsExtractor(arguments[0]);
+            }
+        }
         if (arguments[0].contains("txt")) {
             File urlFile = new File(arguments[0]);
             Scanner input = null;
@@ -57,6 +62,25 @@ public class Critterer {
         }
     }
 
+    public void ogDomainsExtractor(String anOGURL) {
+        URI uri;
+        try {
+            uri = new URI(anOGURL);
+            String hostname = uri.getHost();
+            if (hostname != null) {
+                originalDomains.add(hostname.startsWith("//") ?  hostname.substring(1) : hostname);
+                System.out.println(originalDomains);
+            } else {
+                throw new URISyntaxException(anOGURL, "bad domain name");
+            }
+        } catch (URISyntaxException e) {
+            // print message about format
+            // System exit
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
     public void load(String url) {
         String currentUrl;
         scramble = new CrittererEat(arguments);
@@ -72,9 +96,9 @@ public class Critterer {
                 LinkedList<String> scrambledLinks = new LinkedList<String>();
                 scrambledLinks.addAll(scramble.getLinks());
                 //System.out.println("Scrambled links");
-                for (String link : scrambledLinks) {
-                    System.out.println(link);
-                }
+                //for (String link : scrambledLinks) {
+                    //System.out.println(link);
+                //}
 
                 while(!scrambledLinks.isEmpty()) {
                     nextUrlScrambled = scrambledLinks.remove(0);
@@ -94,24 +118,6 @@ public class Critterer {
             }
         }
         printingFinalStats();
-    }
-
-    public void ogDomainsExtractor(String theNextURL) {
-        URI uri;
-        try {
-            uri = new URI(theNextURL);
-            String hostname = uri.getHost();
-            if (hostname != null) {
-                originalDomains.add(hostname.startsWith("www.") ? hostname.substring(4) : hostname);
-            } else {
-                throw new URISyntaxException(theNextURL, "bad domain name");
-            }
-        } catch (URISyntaxException e) {
-            // print message about format
-            // System exit
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
     }
 
     public boolean domainCompare(String nextUrlScrambled) {
@@ -139,7 +145,7 @@ public class Critterer {
 
     public void clumpNDump() {
         try {
-            PrintWriter pw = new PrintWriter("Content crawled from " + originalDomains + ".txt");
+            PrintWriter pw = new PrintWriter("Content_Crawled_By_Critterer.txt");
             pw.println(scramble.getArticlesClump());
             pw.close();
         } catch (FileNotFoundException e) {

@@ -15,10 +15,45 @@ public class CrittererLaunchpad {
     long totalTimeRunnning;
     long startTimestamp;
     long endTimestamp;
+    public long bandwidthLimitValue;
+    public boolean domainRestricter;
+    public boolean fileOutputClump;
 
 
     CrittererLaunchpad(String args[]) {
         this.args = args;
+    }
+
+    public void launchpad() {
+
+        if (args[1].matches("[0-9]+")) {
+
+            for (int argNum = 2; argNum < args.length; argNum++) {
+
+                if (args[argNum].startsWith("--bandwidthlimit")) {
+                    String[] bandwidthLimitInput = args[argNum].split("=");
+                    String bandwidthLimitValueInput = bandwidthLimitInput[1];
+                    bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
+                    askSpecsMessaging();
+
+                } else if (args[argNum].equals("--stayindomain")) {
+                    domainRestricter = true;
+                    askSpecsMessaging();
+
+                } else if (args[argNum].equals("--dumpinsinglefile")) {
+                    fileOutputClump = true;
+                    askSpecsMessaging();
+
+                } else {
+                    errorMessaging();
+                }
+            }
+
+            launch();
+
+        } else {
+            errorMessaging();
+        }
     }
 
     public void errorMessaging() {
@@ -31,47 +66,6 @@ public class CrittererLaunchpad {
         System.out.println(usageMsg);
     }
 
-    public void launchpad() {
-
-        if (args.length < 4) {
-            errorMessaging();
-        } else {
-            if (args[0].contains("https://")) {
-                if (args[1].matches("[0-9]+")) {
-                    if (args[2].matches("[0-9]+")) {
-                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages At Bandwidth Limit Of " + args[2] + " Kilobytes/Second");
-                        askSpecsMessaging();
-                        launch();
-
-                    } else {
-                        args[2] = "false";
-                        System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages With No Bandwidth Limit");
-                        askSpecsMessaging();
-                        launch();
-                    }
-                } else {
-                    errorMessaging();
-                }
-            } else {
-                if (args[1].matches("[0-9]+")) {
-                    if (args[2].matches("[0-9]+")) {
-                        System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages At Bandwidth Of " + args[2] + " Kilobytes/Second");
-                        askSpecsMessaging();
-                        launch();
-
-                    } else {
-                        args[2] = "false";
-                        System.out.println("Running Configuration on .txt File Containing URLs For "+ args[1] + " Webpages With No Bandwidth Limit");
-                        askSpecsMessaging();
-                        launch();
-                    }
-                } else {
-                    errorMessaging();
-                }
-            }
-        }
-    }
-
     public void launch() {
         startTimestamp = System.currentTimeMillis();
         critterer = new Critterer(args);
@@ -80,7 +74,6 @@ public class CrittererLaunchpad {
         endTimestamp = System.currentTimeMillis();
         printMoreFinalStats();
     }
-
 
     public void printMoreFinalStats() {
         totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;

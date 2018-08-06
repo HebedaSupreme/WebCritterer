@@ -30,13 +30,13 @@ public class Critterer {
         this.arguments = args;
         this.maxPagesGoingTo = args[1];
         this.urlFile = args[0];
-        maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
-        fileOutputClump = Boolean.parseBoolean(arguments[4]);
+        //maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
+        //fileOutputClump = Boolean.parseBoolean(arguments[4]);
     }
 
 
     public void addingurllist() {
-        domainRestricter = Boolean.parseBoolean(arguments[3]);
+        //domainRestricter = Boolean.parseBoolean(arguments[3]);
         if (arguments[0].contains("https://")) {
             if(domainRestricter) {
                 ogDomainsExtractor(arguments[0]);
@@ -97,7 +97,7 @@ public class Critterer {
                 scrambledLinks.addAll(scramble.getLinks());
                 //System.out.println("Scrambled links");
                 //for (String link : scrambledLinks) {
-                    //System.out.println(link);
+                //System.out.println(link);
                 //}
 
                 while(!scrambledLinks.isEmpty()) {

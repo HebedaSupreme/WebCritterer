@@ -55,7 +55,7 @@ public class CrittererEat {
         } else {
             this.bandwidthLimiter = false;
         }
-        fileOutputClump = Boolean.parseBoolean(arguments[4]);
+       // fileOutputClump = Boolean.parseBoolean(arguments[4]);
     }
 
 

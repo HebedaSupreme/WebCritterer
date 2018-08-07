@@ -18,7 +18,7 @@ public class Critterer {
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "Usage: run [SeedURL |OR| Directory Path to File with URL] <Number of Pages Maximum to Critter> [Number of Kilobytes Per Second Crawling Should Average --> 'No' if not needed]";
+    public String usageMsg = "./run.sh <Seed URL or Text File Containing URLs> <NUMBER of pages to critter> { (Optional in any order ) [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;

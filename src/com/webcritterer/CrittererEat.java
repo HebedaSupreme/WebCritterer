@@ -1,3 +1,4 @@
+
 package com.webcritterer;
 
 import org.apache.commons.io.input.CountingInputStream;
@@ -20,7 +21,6 @@ public class CrittererEat {
 
     public String[] args;
     public boolean bandwidthLimiter;
-    public String assignedAvgKBS;
     public long avgKilobytesPerSecond;
     private List<String> links = new LinkedList<String>();
     private Document htmlDocument;
@@ -47,15 +47,13 @@ public class CrittererEat {
     //public String pathToDir = "~/Users/hebeda_supreme/Desktop/";
 
 
-    CrittererEat(String[] arguments){
+    CrittererEat(String[] arguments, long bandwidthLimitValue, boolean fileOutputClump, boolean bandwidthLimiter){
         this.args = arguments;
-        if (args[2].matches("[0-9]+")) {
-            this.bandwidthLimiter = true;
-            this.assignedAvgKBS = args[2];
-        } else {
-            this.bandwidthLimiter = false;
+        if (bandwidthLimiter) {
+            avgKilobytesPerSecond = bandwidthLimitValue;
         }
-       // fileOutputClump = Boolean.parseBoolean(arguments[4]);
+        this.fileOutputClump = fileOutputClump;
+        this.bandwidthLimiter = bandwidthLimiter;
     }
 
 
@@ -83,7 +81,6 @@ public class CrittererEat {
                     System.out.println("Bytes Read: " + bytesRead);
                     totalBytesRead += bytesRead;
                     totalDiffInTimestamps += diffInTimestamps; //
-                    avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
                     avgBytesPerSec = avgKilobytesPerSecond * 1024; //
                     recordNSleep(); //
                     this.htmlDocument = htmlDocument;
@@ -116,9 +113,8 @@ public class CrittererEat {
                     System.out.println("Bytes Read: " + bytesRead);
                     totalBytesRead += bytesRead;
                     totalDiffInTimestamps += diffInTimestamps; //
-                    avgKilobytesPerSecond = Long.parseLong(assignedAvgKBS); //
                     avgBytesPerSec = avgKilobytesPerSecond * 1024; //
-                    recordNSleep(); /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    recordNSleep();
 
                     while ((baLength = pdfStream.read(ba)) != -1) {
                         pdfFileStream.write(ba, 0, baLength);
@@ -205,7 +201,6 @@ public class CrittererEat {
     }
 
     public boolean digest(Document htmlDocument) {
-        //Will parse content from <title> headers and make them titles of printed text documents
         try {
             long digestTimestamp = System.currentTimeMillis();
             String filename = "<title></title>";
@@ -218,7 +213,6 @@ public class CrittererEat {
             for (Element title : titles)
                 pw.println(title.text()); //print the title
 
-            //Parses the content from the page and prints it into text file
             String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
             Jsoup.parse(html, "UTF-8");
             Elements paragraphs = htmlDocument.select("body");

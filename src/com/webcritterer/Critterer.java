@@ -12,10 +12,9 @@ public class Critterer {
     public String[] arguments;
     public String maxPagesGoingTo;
     public String urlFile;
-    public long maximumPagesToGoTo; //ASSIGN THE MAXIMUM NUMBER OF PAGES TO TRAVEL TO HERE
+    public long maximumPagesToGoTo;
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public LinkedList<String> pagesNeededToGoTo = new LinkedList<String>();
-    public LinkedList<String> originalURLs = new LinkedList<String>();
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
@@ -24,19 +23,28 @@ public class Critterer {
     public String nextUrlScrambled;
     public boolean domainRestricter;
     public boolean fileOutputClump;
+    public long bandwidthLimitValue;
+    public boolean bandwidthLimiter;
 
 
-    Critterer(String args[]) {
-        this.arguments = args;
-        this.maxPagesGoingTo = args[1];
-        this.urlFile = args[0];
-        //maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
-        //fileOutputClump = Boolean.parseBoolean(arguments[4]);
+    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter) {
+        try {
+            this.arguments = args;
+            this.maxPagesGoingTo = args[1];
+            this.urlFile = args[0];
+            maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
+            this.fileOutputClump = fileOutputClump;
+            this.domainRestricter = domainRestricter;
+            this.bandwidthLimitValue = bandwidthLimitValue;
+            this.bandwidthLimiter = bandwidthLimiter;
+        } catch(NumberFormatException errorinput) {
+            System.out.println(errorMsg);
+            System.out.println(usageMsg);
+        }
     }
 
 
     public void addingurllist() {
-        //domainRestricter = Boolean.parseBoolean(arguments[3]);
         if (arguments[0].contains("https://")) {
             if(domainRestricter) {
                 ogDomainsExtractor(arguments[0]);
@@ -83,7 +91,7 @@ public class Critterer {
 
     public void load(String url) {
         String currentUrl;
-        scramble = new CrittererEat(arguments);
+        scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
         while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) {
             if (this.pagesNeededToGoTo.isEmpty()) {
                 currentUrl = url;

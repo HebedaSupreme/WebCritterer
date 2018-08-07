@@ -15,45 +15,14 @@ public class CrittererLaunchpad {
     long totalTimeRunnning;
     long startTimestamp;
     long endTimestamp;
-    public long bandwidthLimitValue;
-    public boolean domainRestricter;
-    public boolean fileOutputClump;
+    long bandwidthLimitValue;
+    boolean domainRestricter;
+    boolean fileOutputClump;
+    boolean bandwidthLimiter;
 
 
     CrittererLaunchpad(String args[]) {
         this.args = args;
-    }
-
-    public void launchpad() {
-
-        if (args[1].matches("[0-9]+")) {
-
-            for (int argNum = 2; argNum < args.length; argNum++) {
-
-                if (args[argNum].startsWith("--bandwidthlimit")) {
-                    String[] bandwidthLimitInput = args[argNum].split("=");
-                    String bandwidthLimitValueInput = bandwidthLimitInput[1];
-                    bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
-                    askSpecsMessaging();
-
-                } else if (args[argNum].equals("--stayindomain")) {
-                    domainRestricter = true;
-                    askSpecsMessaging();
-
-                } else if (args[argNum].equals("--dumpinsinglefile")) {
-                    fileOutputClump = true;
-                    askSpecsMessaging();
-
-                } else {
-                    errorMessaging();
-                }
-            }
-
-            launch();
-
-        } else {
-            errorMessaging();
-        }
     }
 
     public void errorMessaging() {
@@ -66,14 +35,47 @@ public class CrittererLaunchpad {
         System.out.println(usageMsg);
     }
 
-    public void launch() {
-        startTimestamp = System.currentTimeMillis();
-        critterer = new Critterer(args);
-        critterer.addingurllist();
-        critterer.load(args[0]);
-        endTimestamp = System.currentTimeMillis();
-        printMoreFinalStats();
+    public void launchpad() {
+                System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages");
+                for (int argNum = 2; argNum < args.length; argNum++) {
+
+                    if (args[argNum].startsWith("--bandwidthlimit=")) {
+                        String[] bandwidthLimitInput = args[argNum].split("=");
+                        String bandwidthLimitValueInput = bandwidthLimitInput[1];
+                        bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
+                        bandwidthLimiter = true;
+                        System.out.println("Bandwidth Limit On At: " + bandwidthLimitValue + " KB/sec");
+
+                    } else if (args[argNum].equals("--stayindomain")) {
+                        domainRestricter = true;
+                        System.out.println("Critterering Restricted to Seed Domain");
+
+                    } else if (args[argNum].equals("--dumpinsinglefile")) {
+                        fileOutputClump = true;
+                        System.out.println("Content Critterered Will Be Placed In Single Text File");
+
+                    }
+
+                }
+                
+        launchup();
+        askSpecsMessaging();
     }
+
+
+    public void launchup() {
+        try {
+            startTimestamp = System.currentTimeMillis();
+            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter);
+            critterer.addingurllist();
+            critterer.load(args[0]);
+            endTimestamp = System.currentTimeMillis();
+            printMoreFinalStats();
+        } catch(ArrayIndexOutOfBoundsException errorinput) {
+            errorMessaging();
+        }
+    }
+
 
     public void printMoreFinalStats() {
         totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;

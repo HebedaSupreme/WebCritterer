@@ -18,7 +18,7 @@ public class Critterer {
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "./run.sh <Seed URL or Text File Containing URLs> <NUMBER of pages to critter> { (Optional in any order ) [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
@@ -27,12 +27,11 @@ public class Critterer {
     public boolean bandwidthLimiter;
 
 
-    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter) {
+    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maximumPagesToGoTo) {
         try {
             this.arguments = args;
-            this.maxPagesGoingTo = args[1];
             this.urlFile = args[0];
-            maximumPagesToGoTo = Long.parseLong(maxPagesGoingTo);
+            this.maximumPagesToGoTo = maximumPagesToGoTo;
             this.fileOutputClump = fileOutputClump;
             this.domainRestricter = domainRestricter;
             this.bandwidthLimitValue = bandwidthLimitValue;

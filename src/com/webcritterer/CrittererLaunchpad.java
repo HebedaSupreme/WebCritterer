@@ -9,7 +9,7 @@ public class CrittererLaunchpad {
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg ="./run.sh <Seed URL or Text File Containing URLs> <NUMBER of pages to critter> { (Optional in any order ) [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg ="./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
     long totalTimeRunnning;
@@ -19,6 +19,7 @@ public class CrittererLaunchpad {
     boolean domainRestricter;
     boolean fileOutputClump;
     boolean bandwidthLimiter;
+    long maxPagesGoingTo;
 
 
     CrittererLaunchpad(String args[]) {
@@ -36,8 +37,14 @@ public class CrittererLaunchpad {
     }
 
     public void launchpad() {
-                System.out.println("Running Configuration On Seed URL " + args[0] + " For " + args[1] + " Webpages");
-                for (int argNum = 2; argNum < args.length; argNum++) {
+                System.out.println("Running Configuration On " + args[0]);
+                for (int argNum = 1; argNum < args.length; argNum++) {
+
+                    if(args[argNum].startsWith("--numberofpagestoload=")) {
+                        String[] pagesToLoadInput = args[argNum].split("=");
+                        String pagesToLoadString = pagesToLoadInput[1];
+                        maxPagesGoingTo = Long.parseLong(pagesToLoadString);
+                    }
 
                     if (args[argNum].startsWith("--bandwidthlimit=")) {
                         String[] bandwidthLimitInput = args[argNum].split("=");
@@ -57,8 +64,11 @@ public class CrittererLaunchpad {
                     }
 
                 }
-
-        launchup();
+        if(args[0].equals("crittererusage")) {
+            System.out.println(usageMsg);
+        } else {
+            launchup();
+        }
         askSpecsMessaging();
     }
 
@@ -66,7 +76,7 @@ public class CrittererLaunchpad {
     public void launchup() {
         try {
             startTimestamp = System.currentTimeMillis();
-            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter);
+            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo);
             critterer.addingurllist();
             critterer.load(args[0]);
             endTimestamp = System.currentTimeMillis();

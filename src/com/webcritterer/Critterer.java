@@ -38,7 +38,7 @@ public class Critterer {
             this.bandwidthLimitValue = bandwidthLimitValue;
             this.bandwidthLimiter = bandwidthLimiter;
             this.pagesLimiter = pagesLimiter;
-        } catch(NumberFormatException errorinput) {
+        } catch (NumberFormatException errorinput) {
             System.out.println(errorMsg);
             System.out.println(usageMsg);
         }
@@ -47,7 +47,7 @@ public class Critterer {
 
     public void addingurllist() {
         if (arguments[0].contains("https://")) {
-            if(domainRestricter) {
+            if (domainRestricter) {
                 ogDomainsExtractor(arguments[0]);
             }
         }
@@ -65,7 +65,7 @@ public class Critterer {
             while (input.hasNextLine()) {
                 String theNextURL = input.nextLine();
                 pagesNeededToGoTo.add(theNextURL);
-                if(domainRestricter) {
+                if (domainRestricter) {
                     ogDomainsExtractor(theNextURL);
                 }
             }
@@ -78,7 +78,7 @@ public class Critterer {
             uri = new URI(anOGURL);
             String hostname = uri.getHost();
             if (hostname != null) {
-                originalDomains.add(hostname.startsWith("//") ?  hostname.substring(1) : hostname);
+                originalDomains.add(hostname.startsWith("//") ? hostname.substring(1) : hostname);
                 System.out.println(originalDomains);
             } else {
                 throw new URISyntaxException(anOGURL, "bad domain name");
@@ -94,7 +94,7 @@ public class Critterer {
     public void loader(String url) {
         String loadurl = url;
         scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
-        if(!pagesLimiter) {
+        if (!pagesLimiter) {
             maximumPagesToGoTo = 999999999;
         }
         while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) {
@@ -147,7 +147,7 @@ public class Critterer {
                     return true;
                 }
             }
-        } catch(ArrayIndexOutOfBoundsException ar) {
+        } catch (ArrayIndexOutOfBoundsException ar) {
         }
         return false;
     }

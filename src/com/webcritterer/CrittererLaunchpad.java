@@ -38,57 +38,54 @@ public class CrittererLaunchpad {
     }
 
     public void launchpad() {
-                System.out.println("Running Configuration On " + args[0]);
-                for (int argNum = 1; argNum < args.length; argNum++) {
-
-                    if(args[argNum].startsWith("--numberofpagestoload=")) {
-                        String[] pagesToLoadInput = args[argNum].split("=");
-                        String pagesToLoadString = pagesToLoadInput[1];
-                        maxPagesGoingTo = Long.parseLong(pagesToLoadString);
-                        System.out.println("Downloading " + maxPagesGoingTo + " pages");
-                        pagesLimiter = true;
-                    }
-
-                    if (args[argNum].startsWith("--bandwidthlimit=")) {
-                        String[] bandwidthLimitInput = args[argNum].split("=");
-                        String bandwidthLimitValueInput = bandwidthLimitInput[1];
-                        bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
-                        bandwidthLimiter = true;
-                        System.out.println("Bandwidth Limit On At: " + bandwidthLimitValue + " KB/sec");
-
-                    } else if (args[argNum].equals("--stayindomain")) {
-                        domainRestricter = true;
-                        System.out.println("Critterering Restricted to Seed Domain");
-
-                    } else if (args[argNum].equals("--dumpinsinglefile")) {
-                        fileOutputClump = true;
-                        System.out.println("Content Critterered Will Be Placed In Single Text File");
-
-                    }
-
-                }
-        if(args[0].equals("crittererusage")) {
+        if (args.length == 0 || args[0].equals("help")) {
             System.out.println(usageMsg);
-        } else {
-            launchup();
+            return;
         }
+        System.out.println("Running Configuration On " + args[0]);
         askSpecsMessaging();
-    }
+        for (int argNum = 1; argNum < args.length; argNum++) {
 
+            if (args[argNum].startsWith("--maxpages=")) {
+                String[] pagesToLoadInput = args[argNum].split("=");
+                String pagesToLoadString = pagesToLoadInput[1];
+                maxPagesGoingTo = Long.parseLong(pagesToLoadString);
+                System.out.println("Downloading " + maxPagesGoingTo + " pages");
+                pagesLimiter = true;
 
-    public void launchup() {
-        try {
-            startTimestamp = System.currentTimeMillis();
-            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
-            critterer.addingurllist();
-            critterer.loader(args[0]);
-            endTimestamp = System.currentTimeMillis();
-            if(pagesLimiter) {
-                printMoreFinalStats();
+            } else if (args[argNum].startsWith("--maxbandwidth=")) {
+                String[] bandwidthLimitInput = args[argNum].split("=");
+                String bandwidthLimitValueInput = bandwidthLimitInput[1];
+                bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
+                bandwidthLimiter = true;
+                System.out.println("Bandwidth Limit On At: " + bandwidthLimitValue + " KB/sec");
+
+            } else if (args[argNum].equals("--domainstay")) {
+                domainRestricter = true;
+                System.out.println("Critterering Restricted to Seed Domain");
+
+            } else if (args[argNum].equals("--onefile")) {
+                fileOutputClump = true;
+                System.out.println("Content Critterered Will Be Placed In Single Text File");
+
+            } else {
+                System.out.println(args[argNum] + " has been formatted incorrectly");
+                errorMessaging();
+                return;
             }
 
-        } catch(ArrayIndexOutOfBoundsException errorinput) {
-            errorMessaging();
+        }
+        launchup();
+    }
+
+    public void launchup() {
+        startTimestamp = System.currentTimeMillis();
+        critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
+        critterer.addingurllist();
+        critterer.loader(args[0]);
+        endTimestamp = System.currentTimeMillis();
+        if (pagesLimiter) {
+            printMoreFinalStats();
         }
     }
 

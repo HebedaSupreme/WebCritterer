@@ -84,25 +84,14 @@ public class CrittererEat {
                     avgBytesPerSec = avgKilobytesPerSecond * 1024; //
                     recordNSleep(); //
                     this.htmlDocument = htmlDocument;
-
-                    if(fileOutputClump) {
-                        digestClump(htmlDocument);
-                    } else {
-                        digest(htmlDocument);
-                    }
+                    ifClump();
 
                 } else {
                     String pdfURL = String.valueOf(url);
                     String[] splitPDFURL = pdfURL.split("//");
                     String pdfDomain = splitPDFURL[1];
                     String pdfName = pdfDomain.replaceAll("/", "_");
-
-                    byte[] ba = new byte[1024];
-                    int baLength;
-
                     FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
-
-                    // Read the PDF from the URL and save to a local file
                     long previousTimestamp = System.currentTimeMillis();
                     InputStream pdfStream = connection.getInputStream();
                     long currentTimestamp = System.currentTimeMillis();
@@ -115,13 +104,8 @@ public class CrittererEat {
                     totalDiffInTimestamps += diffInTimestamps; //
                     avgBytesPerSec = avgKilobytesPerSecond * 1024; //
                     recordNSleep();
+                    pdfstreamer(pdfStream, pdfFileStream);
 
-                    while ((baLength = pdfStream.read(ba)) != -1) {
-                        pdfFileStream.write(ba, 0, baLength);
-                    }
-                    pdfFileStream.flush();
-                    pdfFileStream.close();
-                    pdfStream.close();
                 }
 
             } else {
@@ -135,31 +119,16 @@ public class CrittererEat {
                     long bytesRead = someCountingStream.getCount();
                     System.out.println("Bytes Read: " + bytesRead);
                     totalBytesRead += bytesRead;
+                    ifClump();
 
-                    if(fileOutputClump) {
-                        digestClump(htmlDocument);
-                    } else {
-                        digest(htmlDocument);
-                    }
                 } else {
-                    String pdfURL = String.valueOf(url);
-                    String[] splitPDFURL = pdfURL.split("//");
-                    String pdfDomain = splitPDFURL[1];
-                    String pdfName = pdfDomain.replaceAll("/", "_");
-
-                    byte[] ba = new byte[1024];
-                    int baLength;
-
+                    String pdfURL = String.valueOf(url); //
+                    String[] splitPDFURL = pdfURL.split("//"); //
+                    String pdfDomain = splitPDFURL[1]; //
+                    String pdfName = pdfDomain.replaceAll("/", "_"); //
                     FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
-
-                    // Read the PDF from the URL and save to a local file
                     InputStream pdfStream = connection.getInputStream();
-                    while ((baLength = pdfStream.read(ba)) != -1) {
-                        pdfFileStream.write(ba, 0, baLength);
-                    }
-                    pdfFileStream.flush();
-                    pdfFileStream.close();
-                    pdfStream.close();
+                    pdfstreamer(pdfStream, pdfFileStream);
                 }
             }
 
@@ -170,6 +139,29 @@ public class CrittererEat {
         } catch(NullPointerException nu) {
         }
         return htmlDocument;
+    }
+
+    public void pdfstreamer(InputStream pdfStream, FileOutputStream pdfFileStream) {
+        try {
+            byte[] ba = new byte[1024];
+            int baLength;
+
+            while ((baLength = pdfStream.read(ba)) != -1) {
+                pdfFileStream.write(ba, 0, baLength);
+            }
+            pdfFileStream.flush();
+            pdfFileStream.close();
+            pdfStream.close();
+        } catch(IOException ioe) {
+        }
+    }
+
+    public void ifClump() {
+        if(fileOutputClump) {
+            digestClump(htmlDocument);
+        } else {
+            digest(htmlDocument);
+        }
     }
 
     public void recordNSleep() {

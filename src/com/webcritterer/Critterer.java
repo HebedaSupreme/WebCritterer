@@ -18,16 +18,17 @@ public class Critterer {
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
     public boolean fileOutputClump;
     public long bandwidthLimitValue;
     public boolean bandwidthLimiter;
+    public boolean pagesLimiter;
 
 
-    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maximumPagesToGoTo) {
+    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maximumPagesToGoTo, boolean pagesLimiter) {
         try {
             this.arguments = args;
             this.urlFile = args[0];
@@ -36,6 +37,7 @@ public class Critterer {
             this.domainRestricter = domainRestricter;
             this.bandwidthLimitValue = bandwidthLimitValue;
             this.bandwidthLimiter = bandwidthLimiter;
+            this.pagesLimiter = pagesLimiter;
         } catch(NumberFormatException errorinput) {
             System.out.println(errorMsg);
             System.out.println(usageMsg);
@@ -56,6 +58,7 @@ public class Critterer {
                 input = new Scanner(urlFile);
             } catch (FileNotFoundException e) {
                 System.out.println(errorMsg);
+                System.out.println("This is a FileNotFoundException");
                 System.out.println(usageMsg);
             }
 
@@ -88,43 +91,51 @@ public class Critterer {
         }
     }
 
-    public void load(String url) {
-        String currentUrl;
+    public void loader(String url) {
+        String loadurl = url;
         scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
+        if(!pagesLimiter) {
+            maximumPagesToGoTo = 999999999;
+        }
         while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) {
-            if (this.pagesNeededToGoTo.isEmpty()) {
-                currentUrl = url;
-                this.pagesAlreadyHit.add(url);
-            } else {
-                currentUrl = this.nextUrl();
-            }
-            scramble.critter(currentUrl);
-            if(domainRestricter) {
-                LinkedList<String> scrambledLinks = new LinkedList<String>();
-                scrambledLinks.addAll(scramble.getLinks());
-                //System.out.println("Scrambled links");
-                //for (String link : scrambledLinks) {
-                //System.out.println(link);
-                //}
-
-                while(!scrambledLinks.isEmpty()) {
-                    nextUrlScrambled = scrambledLinks.remove(0);
-                    if(domainCompare(nextUrlScrambled)) {
-                        //System.out.format("%s matched %n", nextUrlScrambled);
-                        this.pagesNeededToGoTo.add(nextUrlScrambled);
-                    } /* else {
-                        System.out.format("%s did not match %n", nextUrlScrambled);
-                    } */
-                }
-            } else {
-                this.pagesNeededToGoTo.addAll(scramble.getLinks());
-            }
-
-            if(fileOutputClump) {
-                clumpNDump();
-            }
+            loading(loadurl);
         }
         printingFinalStats();
+    }
+
+    public void loading(String url) {
+        String currentUrl;
+        if (this.pagesNeededToGoTo.isEmpty()) {
+            currentUrl = url;
+            this.pagesAlreadyHit.add(url);
+        } else {
+            currentUrl = this.nextUrl();
+        }
+        scramble.critter(currentUrl);
+        if (domainRestricter) {
+            LinkedList<String> scrambledLinks = new LinkedList<String>();
+            scrambledLinks.addAll(scramble.getLinks());
+            //System.out.println("Scrambled links");
+            //for (String link : scrambledLinks) {
+            //System.out.println(link);
+            //}
+
+            while (!scrambledLinks.isEmpty()) {
+                nextUrlScrambled = scrambledLinks.remove(0);
+                if (domainCompare(nextUrlScrambled)) {
+                    //System.out.format("%s matched %n", nextUrlScrambled);
+                    this.pagesNeededToGoTo.add(nextUrlScrambled);
+                } /* else {
+                        System.out.format("%s did not match %n", nextUrlScrambled);
+                    } */
+            }
+        } else {
+            this.pagesNeededToGoTo.addAll(scramble.getLinks());
+        }
+
+        if (fileOutputClump) {
+            clumpNDump();
+        }
     }
 
     public boolean domainCompare(String nextUrlScrambled) {

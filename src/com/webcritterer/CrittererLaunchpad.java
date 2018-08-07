@@ -9,7 +9,7 @@ public class CrittererLaunchpad {
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg ="./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
     long totalTimeRunnning;
@@ -20,6 +20,7 @@ public class CrittererLaunchpad {
     boolean fileOutputClump;
     boolean bandwidthLimiter;
     long maxPagesGoingTo;
+    boolean pagesLimiter;
 
 
     CrittererLaunchpad(String args[]) {
@@ -44,6 +45,8 @@ public class CrittererLaunchpad {
                         String[] pagesToLoadInput = args[argNum].split("=");
                         String pagesToLoadString = pagesToLoadInput[1];
                         maxPagesGoingTo = Long.parseLong(pagesToLoadString);
+                        System.out.println("Downloading " + maxPagesGoingTo + " pages");
+                        pagesLimiter = true;
                     }
 
                     if (args[argNum].startsWith("--bandwidthlimit=")) {
@@ -76,11 +79,14 @@ public class CrittererLaunchpad {
     public void launchup() {
         try {
             startTimestamp = System.currentTimeMillis();
-            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo);
+            critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
             critterer.addingurllist();
-            critterer.load(args[0]);
+            critterer.loader(args[0]);
             endTimestamp = System.currentTimeMillis();
-            printMoreFinalStats();
+            if(pagesLimiter) {
+                printMoreFinalStats();
+            }
+
         } catch(ArrayIndexOutOfBoundsException errorinput) {
             errorMessaging();
         }

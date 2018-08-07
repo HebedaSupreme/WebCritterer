@@ -39,7 +39,7 @@ public class CrittererEat {
     float avgBytesPerSec;
     long diffInTimestamps;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     long totalDigestTime;
     public boolean fileOutputClump;
     public String articlesClump;

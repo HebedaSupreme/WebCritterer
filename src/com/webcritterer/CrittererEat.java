@@ -1,4 +1,3 @@
-
 package com.webcritterer;
 
 import org.apache.commons.io.input.CountingInputStream;
@@ -65,70 +64,20 @@ public class CrittererEat {
     public Document critter(String url) {
 
         try {
-            if (bandwidthLimiter) {
-                URLConnection connection = new URL(url).openConnection();
-                connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
-                if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
-                    System.out.println("Page from: " + url);
-                    long previousTimestamp = System.currentTimeMillis(); //
-                    InputStream iStream = connection.getInputStream();
-                    long currentTimestamp = System.currentTimeMillis(); //
-                    CountingInputStream someCountingStream = new CountingInputStream(iStream);
-                    diffInTimestamps = currentTimestamp - previousTimestamp; //
-                    System.out.println("Time Spent Downloading: " + diffInTimestamps); //
-                    Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-                    bytesRead = someCountingStream.getCount();
-                    System.out.println("Bytes Read: " + bytesRead);
-                    totalBytesRead += bytesRead;
-                    totalDiffInTimestamps += diffInTimestamps; //
-                    avgBytesPerSec = avgKilobytesPerSecond * 1024; //
-                    recordNSleep(); //
-                    this.htmlDocument = htmlDocument;
-                    ifClump();
-
-                } else {
-                    String pdfURL = String.valueOf(url);
-                    String[] splitPDFURL = pdfURL.split("//");
-                    String pdfDomain = splitPDFURL[1];
-                    String pdfName = pdfDomain.replaceAll("/", "_");
-                    FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
-                    long previousTimestamp = System.currentTimeMillis();
-                    InputStream pdfStream = connection.getInputStream();
-                    long currentTimestamp = System.currentTimeMillis();
-                    CountingInputStream someCountingStream = new CountingInputStream(pdfStream);
-                    diffInTimestamps = currentTimestamp - previousTimestamp; //
-                    System.out.println("Time Spent Downloading: " + diffInTimestamps);
-                    bytesRead = someCountingStream.getCount();
-                    System.out.println("Bytes Read: " + bytesRead);
-                    totalBytesRead += bytesRead;
-                    totalDiffInTimestamps += diffInTimestamps; //
-                    avgBytesPerSec = avgKilobytesPerSecond * 1024; //
+            URLConnection connection = new URL(url).openConnection();
+            connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+            System.out.println("Page from: " + url);
+            if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
+                loadNMeasure(connection, url);
+                if(bandwidthLimiter) {
                     recordNSleep();
-                    pdfstreamer(pdfStream, pdfFileStream);
-
                 }
+                ifClump();
 
             } else {
-                URLConnection connection = new URL(url).openConnection();
-                connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
-                if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
-                    System.out.println("Page from: " + url);
-                    InputStream iStream = connection.getInputStream();
-                    CountingInputStream someCountingStream = new CountingInputStream(iStream);
-                    Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
-                    long bytesRead = someCountingStream.getCount();
-                    System.out.println("Bytes Read: " + bytesRead);
-                    totalBytesRead += bytesRead;
-                    ifClump();
-
-                } else {
-                    String pdfURL = String.valueOf(url); //
-                    String[] splitPDFURL = pdfURL.split("//"); //
-                    String pdfDomain = splitPDFURL[1]; //
-                    String pdfName = pdfDomain.replaceAll("/", "_"); //
-                    FileOutputStream pdfFileStream = new FileOutputStream(pdfName + ".pdf");
-                    InputStream pdfStream = connection.getInputStream();
-                    pdfstreamer(pdfStream, pdfFileStream);
+                pdfstreamer(loadNMeasure(connection, url), pdfstarter(url));
+                if(bandwidthLimiter) {
+                    recordNSleep();
                 }
             }
 
@@ -139,6 +88,42 @@ public class CrittererEat {
         } catch(NullPointerException nu) {
         }
         return htmlDocument;
+    }
+
+    public InputStream loadNMeasure(URLConnection connection, String url) {
+        long previousTimestamp = System.currentTimeMillis();
+        InputStream iStream = null;
+        try {
+            iStream = connection.getInputStream();
+        } catch (IOException e) {
+        }
+        long currentTimestamp = System.currentTimeMillis(); //
+        CountingInputStream someCountingStream = new CountingInputStream(iStream);
+        try {
+            htmlDocument = Jsoup.parse(someCountingStream, null, url);
+        } catch (IOException e) {
+        }
+        diffInTimestamps = currentTimestamp - previousTimestamp; //
+        System.out.println("Time Spent Downloading: " + diffInTimestamps); //
+        bytesRead = someCountingStream.getCount(); //
+        System.out.println("Bytes Read: " + bytesRead); //
+        totalBytesRead += bytesRead; //
+        totalDiffInTimestamps += diffInTimestamps; //
+        avgBytesPerSec = avgKilobytesPerSecond * 1024; //
+        return iStream;
+    }
+
+    public FileOutputStream pdfstarter(String url) {
+        String pdfURL = String.valueOf(url); //
+        String[] splitPDFURL = pdfURL.split("//"); //
+        String pdfDomain = splitPDFURL[1]; //
+        String pdfName = pdfDomain.replaceAll("/", "_"); //
+        FileOutputStream pdfFileStream = null; //
+        try {
+            pdfFileStream = new FileOutputStream(pdfName + ".pdf");
+        } catch (FileNotFoundException e) {
+        }
+        return pdfFileStream;
     }
 
     public void pdfstreamer(InputStream pdfStream, FileOutputStream pdfFileStream) {

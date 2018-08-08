@@ -75,7 +75,7 @@ public class CrittererEat {
                 ifClump();
 
             } else {
-                pdfstreamer(loadNMeasure(connection, url), pdfstarter(url));
+                pdfstreamer(connection.getInputStream(), pdfstarter(url));
                 if(bandwidthLimiter) {
                     recordNSleep();
                 }

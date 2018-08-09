@@ -46,12 +46,12 @@ public class Critterer {
 
 
     public void addingurllist() {
-        if (arguments[0].contains("https://")) {
+        if (arguments[0].contains("http://") || arguments[0].contains("https://")) {
+            pagesNeededToGoTo.add(arguments[0]);
             if (domainRestricter) {
                 ogDomainsExtractor(arguments[0]);
             }
-        }
-        if (arguments[0].contains("txt")) {
+        } else if (arguments[0].contains(".txt")) {
             File urlFile = new File(arguments[0]);
             Scanner input = null;
             try {
@@ -92,25 +92,17 @@ public class Critterer {
     }
 
     public void loader(String url) {
-        String loadurl = url;
         scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
         if (!pagesLimiter) {
             maximumPagesToGoTo = 999999999;
         }
-        while (this.pagesAlreadyHit.size() < maximumPagesToGoTo) {
-            loading(loadurl);
+        while (this.pagesAlreadyHit.size() < maximumPagesToGoTo && pagesNeededToGoTo.size() > 0) {
+            loading(nextUrl());
         }
         printingFinalStats();
     }
 
-    public void loading(String url) {
-        String currentUrl;
-        if (this.pagesNeededToGoTo.isEmpty()) {
-            currentUrl = url;
-            this.pagesAlreadyHit.add(url);
-        } else {
-            currentUrl = this.nextUrl();
-        }
+    public void loading(String currentUrl) {
         scramble.critter(currentUrl);
         if (domainRestricter) {
             LinkedList<String> scrambledLinks = new LinkedList<String>();
@@ -131,10 +123,6 @@ public class Critterer {
             }
         } else {
             this.pagesNeededToGoTo.addAll(scramble.getLinks());
-        }
-
-        if (fileOutputClump) {
-            clumpNDump();
         }
     }
 
@@ -159,16 +147,6 @@ public class Critterer {
         } while (this.pagesAlreadyHit.contains(nextUrl));
         this.pagesAlreadyHit.add(nextUrl);
         return nextUrl;
-    }
-
-    public void clumpNDump() {
-        try {
-            PrintWriter pw = new PrintWriter("Content_Crawled_By_Critterer.txt");
-            pw.println(scramble.getArticlesClump());
-            pw.close();
-        } catch (FileNotFoundException e) {
-        }
-
     }
 
     public void printingFinalStats() {

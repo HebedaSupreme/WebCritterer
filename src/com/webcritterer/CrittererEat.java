@@ -5,12 +5,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.FileOutputStream;
@@ -22,7 +20,6 @@ public class CrittererEat {
     public boolean bandwidthLimiter;
     public long avgKilobytesPerSecond;
     private List<String> links = new LinkedList<String>();
-    private Document htmlDocument;
     //creates a timestamp for later use
     //long second = 1000; //1 second
     long neededSleepTime;
@@ -55,62 +52,59 @@ public class CrittererEat {
         this.bandwidthLimiter = bandwidthLimiter;
     }
 
-
-    public List<String> getLinks() {
-        return this.links;
-    }
-
-
-    public Document critter(String url) {
-
+    public void critter(String url) {
+        links.clear();
         try {
-            URLConnection connection = new URL(url).openConnection();
-            connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+            HttpURLConnection connection = getConnection(url);
+            String contentType = connection.getContentType();
+            if(contentType == null) {
+                return;
+            }
             System.out.println("Page from: " + url);
-            if (!connection.getContentType().equalsIgnoreCase("application/pdf")) {
-                loadNMeasure(connection, url);
-                if(bandwidthLimiter) {
-                    recordNSleep();
-                }
-                ifClump();
-
-            } else {
-                pdfstreamer(connection.getInputStream(), pdfstarter(url));
-                if(bandwidthLimiter) {
-                    recordNSleep();
-                }
+            boolean isPDF = contentType.equalsIgnoreCase("application/pdf");
+            loadNMeasure(connection, url, isPDF);
+            if(bandwidthLimiter) {
+                recordNSleep();
             }
 
         } catch(IOException ioe) {
-        } catch(java.lang.IllegalArgumentException emptyLineOnURLFile) {
-            System.out.println(errorMsg);
-            System.out.println(usageMsg);
-        } catch(NullPointerException nu) {
         }
-        return htmlDocument;
     }
 
-    public InputStream loadNMeasure(URLConnection connection, String url) {
+    private HttpURLConnection getConnection(String url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+        return connection;
+    }
+
+    public void loadNMeasure(HttpURLConnection connection, String url, boolean isPDF) {
         long previousTimestamp = System.currentTimeMillis();
+        long currentTimestamp = 0;
+        CountingInputStream someCountingStream = null;
         InputStream iStream = null;
         try {
+            int responseCode = connection.getResponseCode();
+            if(responseCode >= 400) {
+                return;
+            }
             iStream = connection.getInputStream();
+            currentTimestamp = System.currentTimeMillis();
+            someCountingStream = new CountingInputStream(iStream);
+            if(isPDF) {
+                pdfstreamer(someCountingStream, pdfstarter(url));
+            } else {
+                Document htmlDocument = Jsoup.parse(someCountingStream, null, url);
+                digest(htmlDocument);
+            }
         } catch (IOException e) {
         }
-        long currentTimestamp = System.currentTimeMillis(); //
-        CountingInputStream someCountingStream = new CountingInputStream(iStream);
-        try {
-            htmlDocument = Jsoup.parse(someCountingStream, null, url);
-        } catch (IOException e) {
-        }
-        diffInTimestamps = currentTimestamp - previousTimestamp; //
-        System.out.println("Time Spent Downloading: " + diffInTimestamps); //
-        bytesRead = someCountingStream.getCount(); //
-        System.out.println("Bytes Read: " + bytesRead); //
-        totalBytesRead += bytesRead; //
-        totalDiffInTimestamps += diffInTimestamps; //
-        avgBytesPerSec = avgKilobytesPerSecond * 1024; //
-        return iStream;
+        diffInTimestamps = currentTimestamp - previousTimestamp;
+        System.out.println("Time Spent Downloading: " + diffInTimestamps);
+        bytesRead = someCountingStream.getCount();
+        System.out.println("Bytes Read: " + bytesRead);
+        totalBytesRead += bytesRead;
+        totalDiffInTimestamps += diffInTimestamps;
+        avgBytesPerSec = avgKilobytesPerSecond * 1024;
     }
 
     public FileOutputStream pdfstarter(String url) {
@@ -138,14 +132,6 @@ public class CrittererEat {
             pdfFileStream.close();
             pdfStream.close();
         } catch(IOException ioe) {
-        }
-    }
-
-    public void ifClump() {
-        if(fileOutputClump) {
-            digestClump(htmlDocument);
-        } else {
-            digest(htmlDocument);
         }
     }
 
@@ -185,17 +171,34 @@ public class CrittererEat {
             Elements titles = htmlDocument.select("title");
             PrintWriter pw = null;
 
-            pw = new PrintWriter((titles.text()) + ".txt");
+            if(fileOutputClump) {
+                FileWriter fw = new FileWriter("Content_Gathered_By_Critterer.txt",true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                pw = new PrintWriter(bw);
+            } else {
+                pw = new PrintWriter((titles.text()) + ".txt");
+            }
 
-            for (Element title : titles)
+            for (Element title : titles) {
                 pw.println(title.text()); //print the title
+                //pw.write('\n');
+                //System.out.println(title.text());
+                //System.out.println("Splittttttttttttttttttttttttttt");
+                //System.out.println(title.text().getBytes());
+            }
 
             String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
             Jsoup.parse(html, "UTF-8");
             Elements paragraphs = htmlDocument.select("body");
-            for (Element p : paragraphs)
+            for (Element p : paragraphs) {
                 pw.println(p.text());
+                //pw.write('\n');
+                //System.out.println(p.text());
+                //System.out.println("Splittttttttttttttttttttttttttt AGAIIIIIIIIIIIIINNNNNNNNNNNNN");
+                //System.out.println(p.text().getBytes());
+            }
             //Collects links and adds them to list while counting number found
+            pw.flush();
             pw.close();
             Elements linksOnPage = htmlDocument.select("a[href]");
             System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
@@ -208,12 +211,15 @@ public class CrittererEat {
             return true;
 
         } catch (FileNotFoundException e) {
+            System.out.println("SOMETHING IS WRONG");
+        } catch (IOException pwisannoying) {
+           System.out.println("SOMETHING ISN'T WORKINGGGgggggggggggggggggggggggg");
         }
 
         return false;
     }
 
-    public void digestClump(Document htmlDocument) {
+    /* public void digestClump(Document htmlDocument) {
 
         long digestTimestamp = System.currentTimeMillis();
         String filename = "<title></title>";
@@ -238,6 +244,7 @@ public class CrittererEat {
             totalDigestTime += digestTime;
         }
     }
+    */
 
     public long gettotalBytesRead() {
         return totalBytesRead;
@@ -269,5 +276,9 @@ public class CrittererEat {
 
     public String getArticlesClump() {
         return articlesClump;
+    }
+
+    public List<String> getLinks() {
+        return this.links;
     }
 }

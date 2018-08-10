@@ -2,7 +2,6 @@ package com.webcritterer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -10,7 +9,6 @@ import java.util.*;
 public class Critterer {
 
     public String[] arguments;
-    public String maxPagesGoingTo;
     public String urlFile;
     public long maximumPagesToGoTo;
     public Set<String> pagesAlreadyHit = new HashSet<String>();
@@ -18,7 +16,7 @@ public class Critterer {
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "";
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
@@ -58,7 +56,7 @@ public class Critterer {
                 input = new Scanner(urlFile);
             } catch (FileNotFoundException e) {
                 System.out.println(errorMsg);
-                System.out.println("This is a FileNotFoundException");
+                System.out.println("where is file");
                 System.out.println(usageMsg);
             }
 
@@ -91,7 +89,7 @@ public class Critterer {
         }
     }
 
-    public void loader(String url) {
+    public void loader() {
         scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
         if (!pagesLimiter) {
             maximumPagesToGoTo = 999999999;
@@ -107,19 +105,12 @@ public class Critterer {
         if (domainRestricter) {
             LinkedList<String> scrambledLinks = new LinkedList<String>();
             scrambledLinks.addAll(scramble.getLinks());
-            //System.out.println("Scrambled links");
-            //for (String link : scrambledLinks) {
-            //System.out.println(link);
-            //}
 
             while (!scrambledLinks.isEmpty()) {
                 nextUrlScrambled = scrambledLinks.remove(0);
                 if (domainCompare(nextUrlScrambled)) {
-                    //System.out.format("%s matched %n", nextUrlScrambled);
                     this.pagesNeededToGoTo.add(nextUrlScrambled);
-                } /* else {
-                        System.out.format("%s did not match %n", nextUrlScrambled);
-                    } */
+                }
             }
         } else {
             this.pagesNeededToGoTo.addAll(scramble.getLinks());
@@ -178,13 +169,4 @@ public class Critterer {
     public long gettotalKilos() {
         return totalKilos;
     }
-
-    public Set<String> getPagesAlreadyHit() {
-        return pagesAlreadyHit;
-    }
-
-    public List<String> getPagesNeededToGoTo() {
-        return pagesNeededToGoTo;
-    }
-
 }

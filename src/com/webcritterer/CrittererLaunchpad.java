@@ -12,16 +12,6 @@ public class CrittererLaunchpad {
     public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
-    long totalTimeRunnning;
-    long startTimestamp;
-    long endTimestamp;
-    long bandwidthLimitValue;
-    boolean domainRestricter;
-    boolean fileOutputClump;
-    boolean bandwidthLimiter;
-    long maxPagesGoingTo;
-    boolean pagesLimiter;
-
 
     CrittererLaunchpad(String args[]) {
         this.args = args;
@@ -44,6 +34,13 @@ public class CrittererLaunchpad {
         }
         System.out.println("Running Configuration On " + args[0]);
         askSpecsMessaging();
+        long maxPagesGoingTo = 0;
+        boolean pagesLimiter = false;
+        boolean bandwidthLimiter = false;
+        boolean domainRestricter = false;
+        boolean fileOutputClump = false;
+        long bandwidthLimitValue = 0;
+
         for (int argNum = 1; argNum < args.length; argNum++) {
 
             if (args[argNum].startsWith("--maxpages=")) {
@@ -75,26 +72,26 @@ public class CrittererLaunchpad {
             }
 
         }
-        launchup();
+        launchup(bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
     }
 
-    public void launchup() {
-        startTimestamp = System.currentTimeMillis();
+    public void launchup(long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maxPagesGoingTo, boolean pagesLimiter) {
+        long startTimestamp = System.currentTimeMillis();
         critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
         critterer.addingurllist();
-        critterer.loader(args[0]);
-        endTimestamp = System.currentTimeMillis();
+        critterer.loader();
+        long endTimestamp = System.currentTimeMillis();
         if (pagesLimiter) {
-            printMoreFinalStats();
+            printMoreFinalStats(startTimestamp, endTimestamp);
         }
     }
 
 
-    public void printMoreFinalStats() {
-        totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
+    public void printMoreFinalStats(long startTimestamp, long endTimestamp) {
+        float totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
         System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
         long totalKilos = critterer.gettotalKilos();
-        long avgByTimestamp = totalKilos / totalTimeRunnning;
+        float avgByTimestamp = totalKilos / totalTimeRunnning;
         System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
     }
 

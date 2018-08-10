@@ -33,9 +33,6 @@ public class CrittererEat {
     float totalTheoryTime;
     long bytesRead;
     float avgBytesPerSec;
-    long diffInTimestamps;
-    public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
     long totalDigestTime;
     public boolean fileOutputClump;
     public String articlesClump;
@@ -63,10 +60,6 @@ public class CrittererEat {
             System.out.println("Page from: " + url);
             boolean isPDF = contentType.equalsIgnoreCase("application/pdf");
             loadNMeasure(connection, url, isPDF);
-            if(bandwidthLimiter) {
-                recordNSleep();
-            }
-
         } catch(IOException ioe) {
         }
     }
@@ -98,13 +91,14 @@ public class CrittererEat {
             }
         } catch (IOException e) {
         }
-        diffInTimestamps = currentTimestamp - previousTimestamp;
-        System.out.println("Time Spent Downloading: " + diffInTimestamps);
+        long diffInTimestamps = currentTimestamp - previousTimestamp;
+        timestampTotality(diffInTimestamps);
         bytesRead = someCountingStream.getCount();
-        System.out.println("Bytes Read: " + bytesRead);
-        totalBytesRead += bytesRead;
-        totalDiffInTimestamps += diffInTimestamps;
-        avgBytesPerSec = avgKilobytesPerSecond * 1024;
+        bytesTotality();
+        averageBandwidthSetter();
+        if(bandwidthLimiter) {
+            recordNSleep(diffInTimestamps);
+        }
     }
 
     public FileOutputStream pdfstarter(String url) {
@@ -135,16 +129,34 @@ public class CrittererEat {
         }
     }
 
-    public void recordNSleep() {
+    public void averageBandwidthSetter() {
+        avgBytesPerSec = avgKilobytesPerSecond * 1024;
+    }
+
+    public void timestampTotality(long diffInTimestamps) {
+        System.out.println("Time Spent Downloading: " + diffInTimestamps);
+        totalDiffInTimestamps += diffInTimestamps;
+    }
+
+    public void bytesTotality() {
+        System.out.println("Bytes Read: " + bytesRead);
+        totalBytesRead += bytesRead;
+    }
+
+    public void theoryNReal(long diffInTimestamps) {
         theoreticalSleepTime = (((bytesRead * 1000) / avgBytesPerSec) - diffInTimestamps);
         neededSleepTime = (long) (theoreticalSleepTime);
         truncatedValue = (theoreticalSleepTime - neededSleepTime);
+    }
 
+    public void theoryTotality() {
         if (theoreticalSleepTime > 0) {
             System.out.println("Theoretical Sleep Time: " + theoreticalSleepTime);
             totalTheoryTime += theoreticalSleepTime;
         }
+    }
 
+    public void sleeperCell() {
         if (neededSleepTime > 0) {
             totalSleepTime += neededSleepTime;
             System.out.println("neededSleepTime" + neededSleepTime);
@@ -153,14 +165,27 @@ public class CrittererEat {
             } catch (InterruptedException e) {
             }
         }
+    }
 
+    public void truncatedTotality() {
         if (truncatedValue > 0) {
             System.out.println("Truncated Time: " + truncatedValue);
             totalTruncatedValue += truncatedValue;
         }
+    }
+
+    public void maxBytesRecorder() {
         if (bytesRead > maxBytesReadAtOnce) {
             maxBytesReadAtOnce = bytesRead;
         }
+    }
+
+    public void recordNSleep(long diffInTimestamps) {
+        theoryNReal(diffInTimestamps);
+        theoryTotality();
+        sleeperCell();
+        truncatedTotality();
+        maxBytesRecorder();
     }
 
     public boolean digest(Document htmlDocument) {
@@ -180,11 +205,7 @@ public class CrittererEat {
             }
 
             for (Element title : titles) {
-                pw.println(title.text()); //print the title
-                //pw.write('\n');
-                //System.out.println(title.text());
-                //System.out.println("Splittttttttttttttttttttttttttt");
-                //System.out.println(title.text().getBytes());
+                pw.println(title.text());
             }
 
             String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
@@ -192,12 +213,8 @@ public class CrittererEat {
             Elements paragraphs = htmlDocument.select("body");
             for (Element p : paragraphs) {
                 pw.println(p.text());
-                //pw.write('\n');
-                //System.out.println(p.text());
-                //System.out.println("Splittttttttttttttttttttttttttt AGAIIIIIIIIIIIIINNNNNNNNNNNNN");
-                //System.out.println(p.text().getBytes());
             }
-            //Collects links and adds them to list while counting number found
+
             pw.flush();
             pw.close();
             Elements linksOnPage = htmlDocument.select("a[href]");
@@ -218,33 +235,6 @@ public class CrittererEat {
 
         return false;
     }
-
-    /* public void digestClump(Document htmlDocument) {
-
-        long digestTimestamp = System.currentTimeMillis();
-        String filename = "<title></title>";
-        Jsoup.parse(filename, "UTF-8");
-        Elements titles = htmlDocument.select("title");
-        String titleString = titles.text() + "\n\n";
-
-        String html = "<html><head></head>" + "<body><p>" + "</p></body></html>";
-        Jsoup.parse(html, "UTF-8");
-        Elements paragraphs = htmlDocument.select("body");
-        String paragraphString = paragraphs.text() + "\n\n";
-
-        String singleArticle = titleString + paragraphString + "\n\n";
-        articlesClump += singleArticle;
-
-        Elements linksOnPage = htmlDocument.select("a[href]");
-        System.out.println("**Grabbed (" + linksOnPage.size() + ") links***");
-        for (Element link : linksOnPage) {
-            this.links.add(link.absUrl("href"));
-            long digestEndTimestamp = System.currentTimeMillis();
-            long digestTime = digestEndTimestamp - digestTimestamp;
-            totalDigestTime += digestTime;
-        }
-    }
-    */
 
     public long gettotalBytesRead() {
         return totalBytesRead;

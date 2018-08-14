@@ -9,14 +9,13 @@ import java.util.*;
 public class Critterer {
 
     public String[] arguments;
-    public String urlFile;
     public long maximumPagesToGoTo;
     public Set<String> pagesAlreadyHit = new HashSet<String>();
     public LinkedList<String> pagesNeededToGoTo = new LinkedList<String>();
     public long totalKilos;
     public CrittererEat scramble;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "";
+    public String usageMsg = "./run.sh {List all URLS here} [(Optional in any order) <--seedlist=Directory Path to Text File Containing URLS> <--maxpages=Maximum NUMBER of pages to crawl to> <--maxbandwidth=Max NUMBER of Kilobytes/Second> <--domainstay> <--onefile>]";
     public LinkedList<String> originalDomains = new LinkedList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
@@ -24,41 +23,41 @@ public class Critterer {
     public long bandwidthLimitValue;
     public boolean bandwidthLimiter;
     public boolean pagesLimiter;
+    public boolean seedList;
+    public String seedListPath;
+    public LinkedList<String> listedURLs;
 
 
-    Critterer(String args[], long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maximumPagesToGoTo, boolean pagesLimiter) {
+    Critterer(long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maximumPagesToGoTo, boolean pagesLimiter, boolean seedList, String seedListPath, LinkedList<String> listedURLs) {
         try {
-            this.arguments = args;
-            this.urlFile = args[0];
             this.maximumPagesToGoTo = maximumPagesToGoTo;
             this.fileOutputClump = fileOutputClump;
             this.domainRestricter = domainRestricter;
             this.bandwidthLimitValue = bandwidthLimitValue;
             this.bandwidthLimiter = bandwidthLimiter;
             this.pagesLimiter = pagesLimiter;
+            this.seedList = seedList;
+            this.seedListPath = seedListPath;
+            this.listedURLs = listedURLs;
         } catch (NumberFormatException errorinput) {
             System.out.println(errorMsg);
             System.out.println(usageMsg);
         }
     }
 
-
     public void addingurllist() {
-        if (arguments[0].contains("http://") || arguments[0].contains("https://")) {
-            pagesNeededToGoTo.add(arguments[0]);
-            if (domainRestricter) {
-                ogDomainsExtractor(arguments[0]);
+        pagesNeededToGoTo.addAll(listedURLs);
+        if (domainRestricter) {
+            for (int i = 0; i < listedURLs.size(); i++) {
+                ogDomainsExtractor(listedURLs.get(i));
             }
-        } else if (arguments[0].contains(".txt")) {
-            File urlFile = new File(arguments[0]);
+        }
+
+        if (seedList) {
+            File urlFile = new File(seedListPath);
             Scanner input = null;
             try {
                 input = new Scanner(urlFile);
-            } catch (FileNotFoundException e) {
-                System.out.println(errorMsg);
-                System.out.println("where is file");
-                System.out.println(usageMsg);
-            }
 
             while (input.hasNextLine()) {
                 String theNextURL = input.nextLine();
@@ -66,6 +65,15 @@ public class Critterer {
                 if (domainRestricter) {
                     ogDomainsExtractor(theNextURL);
                 }
+            }
+            } catch (FileNotFoundException e) {
+                System.out.println(errorMsg);
+                System.out.println("where is file");
+                System.out.println(usageMsg);
+            } catch (NullPointerException nofile) {
+                System.out.println(errorMsg);
+                System.out.println("Text File is Empty or Doesn't Exist");
+                System.out.println(usageMsg);
             }
         }
     }
@@ -82,15 +90,13 @@ public class Critterer {
                 throw new URISyntaxException(anOGURL, "bad domain name");
             }
         } catch (URISyntaxException e) {
-            // print message about format
-            // System exit
             System.out.println(e.getMessage());
             System.exit(1);
         }
     }
 
     public void loader() {
-        scramble = new CrittererEat(arguments, bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
+        scramble = new CrittererEat(bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
         if (!pagesLimiter) {
             maximumPagesToGoTo = 999999999;
         }

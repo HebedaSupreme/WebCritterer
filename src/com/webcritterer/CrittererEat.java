@@ -15,7 +15,6 @@ import java.io.FileOutputStream;
 
 public class CrittererEat {
 
-    public String[] args;
     private List<String> links = new LinkedList<String>();
     long totalBytesRead;
     long totalDiffInTimestamps;
@@ -29,8 +28,7 @@ public class CrittererEat {
     public boolean bandwidthLimiter;
 
 
-    CrittererEat(String[] arguments, long bandwidthLimitValue, boolean fileOutputClump, boolean bandwidthLimiter){
-        this.args = arguments;
+    CrittererEat(long bandwidthLimitValue, boolean fileOutputClump, boolean bandwidthLimiter){
         if (bandwidthLimiter) {
             avgBytesPerSec = bandwidthLimitValue * 1024;
         }

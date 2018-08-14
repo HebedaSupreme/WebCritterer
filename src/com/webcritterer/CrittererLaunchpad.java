@@ -1,7 +1,6 @@
 package com.webcritterer;
 
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedList;
 
 public class CrittererLaunchpad {
 
@@ -9,7 +8,7 @@ public class CrittererLaunchpad {
 
     public String[] args;
     public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "Usage: ./run.sh <Seed URL or Text File Containing URLs> {(Optional in any order ) [--numbersofpagestoload=NUMBER of pages to download] [--bandwidthlimit=NUMBER average of KB/sec to critter at] [--stayindomain] [--dumpinsinglefile]}";
+    public String usageMsg = "./run.sh {List all URLS here} [(Optional in any order) <--seedtxt=Directory Path to Text File Containing URLS> <--maxpages=Maximum NUMBER of pages to crawl to> <--maxbandwidth=Max NUMBER of Kilobytes/Second> <--domainstay> <--onefile>]";
     public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
 
@@ -32,16 +31,18 @@ public class CrittererLaunchpad {
             System.out.println(usageMsg);
             return;
         }
-        System.out.println("Running Configuration On " + args[0]);
         askSpecsMessaging();
         long maxPagesGoingTo = 0;
         boolean pagesLimiter = false;
         boolean bandwidthLimiter = false;
         boolean domainRestricter = false;
         boolean fileOutputClump = false;
+        boolean seedList = false;
         long bandwidthLimitValue = 0;
+        String seedListPass = new String();
+        LinkedList<String> listedURLs = new LinkedList<String>();
 
-        for (int argNum = 1; argNum < args.length; argNum++) {
+        for (int argNum = 0; argNum < args.length; argNum++) {
 
             if (args[argNum].startsWith("--maxpages=")) {
                 String[] pagesToLoadInput = args[argNum].split("=");
@@ -49,6 +50,14 @@ public class CrittererLaunchpad {
                 maxPagesGoingTo = Long.parseLong(pagesToLoadString);
                 System.out.println("Downloading " + maxPagesGoingTo + " pages");
                 pagesLimiter = true;
+
+            } else if (args[argNum].startsWith("--seedtxt=")) {
+                String[] seedListPathInput = args[argNum].split("=");
+                String seedListPath = seedListPathInput[1];
+                seedListPass = seedListPath;
+                System.out.println("BOOOOooooooooooOOOOOOOOOOooooooOOOOOOOOOOOOOooooooooooOOOOOOOOOOOooooooOOOOOOOOOOooooooooooooooooooooooOOOOOOOOOOOOOO");
+                System.out.println("Using URL list from " + seedListPass);
+                seedList = true;
 
             } else if (args[argNum].startsWith("--maxbandwidth=")) {
                 String[] bandwidthLimitInput = args[argNum].split("=");
@@ -66,18 +75,18 @@ public class CrittererLaunchpad {
                 System.out.println("Content Critterered Will Be Placed In Single Text File");
 
             } else {
-                System.out.println(args[argNum] + " has been formatted incorrectly");
-                errorMessaging();
-                return;
+                if (args[argNum].contains("http://") || args[argNum].contains("https://")) {
+                    listedURLs.add(args[argNum]);
+                    System.out.println("Running Configuration On " + args[argNum]);
+                }
             }
-
         }
-        launchup(bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
+        launchup(bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter, seedList, seedListPass, listedURLs);
     }
 
-    public void launchup(long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maxPagesGoingTo, boolean pagesLimiter) {
+    public void launchup(long bandwidthLimitValue, boolean domainRestricter, boolean fileOutputClump, boolean bandwidthLimiter, long maxPagesGoingTo, boolean pagesLimiter, boolean seedList, String seedListPath, LinkedList<String> listedURLs) {
         long startTimestamp = System.currentTimeMillis();
-        critterer = new Critterer(args, bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter);
+        critterer = new Critterer(bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter, seedList, seedListPath, listedURLs);
         critterer.addingurllist();
         critterer.loader();
         long endTimestamp = System.currentTimeMillis();

@@ -48,13 +48,18 @@ public class CrittererEat {
             boolean isPDF = contentType.equalsIgnoreCase("application/pdf");
             loadNMeasure(connection, url, isPDF);
         } catch(IOException ioe) {
+        } catch(NullPointerException hmph) {
         }
     }
 
     private HttpURLConnection getConnection(String url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
-        return connection;
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.addRequestProperty("User-Agent", "Chrome/67.0.3396.99");
+            return connection;
+        } catch(ClassCastException someConnectionCantGoHTTP) {
+            return null;
+        }
     }
 
     public void loadNMeasure(HttpURLConnection connection, String url, boolean isPDF) {

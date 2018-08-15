@@ -11,12 +11,10 @@ public class Critterer {
     public String[] arguments;
     public long maximumPagesToGoTo;
     public Set<String> pagesAlreadyHit = new HashSet<String>();
-    public LinkedList<String> pagesNeededToGoTo = new LinkedList<String>();
+    public ArrayList<String> pagesNeededToGoTo = new ArrayList<String>();
     public long totalKilos;
     public CrittererEat scramble;
-    public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
-    public String usageMsg = "./run.sh {List all URLS here} [(Optional in any order) <--seedlist=Directory Path to Text File Containing URLS> <--maxpages=Maximum NUMBER of pages to crawl to> <--maxbandwidth=Max NUMBER of Kilobytes/Second> <--domainstay> <--onefile>]";
-    public LinkedList<String> originalDomains = new LinkedList<String>();
+    public ArrayList<String> originalDomains = new ArrayList<String>();
     public String nextUrlScrambled;
     public boolean domainRestricter;
     public boolean fileOutputClump;
@@ -40,8 +38,6 @@ public class Critterer {
             this.seedListPath = seedListPath;
             this.listedURLs = listedURLs;
         } catch (NumberFormatException errorinput) {
-            System.out.println(errorMsg);
-            System.out.println(usageMsg);
         }
     }
 
@@ -61,19 +57,16 @@ public class Critterer {
 
             while (input.hasNextLine()) {
                 String theNextURL = input.nextLine();
+                if(theNextURL.trim().length() == 0) {
+                    continue;
+                }
                 pagesNeededToGoTo.add(theNextURL);
                 if (domainRestricter) {
                     ogDomainsExtractor(theNextURL);
                 }
             }
             } catch (FileNotFoundException e) {
-                System.out.println(errorMsg);
-                System.out.println("where is file");
-                System.out.println(usageMsg);
-            } catch (NullPointerException nofile) {
-                System.out.println(errorMsg);
-                System.out.println("Text File is Empty or Doesn't Exist");
-                System.out.println(usageMsg);
+                throw new IllegalArgumentException("URL List Text File Not Valid File: " + seedListPath);
             }
         }
     }
@@ -103,7 +96,9 @@ public class Critterer {
         while (this.pagesAlreadyHit.size() < maximumPagesToGoTo && pagesNeededToGoTo.size() > 0) {
             loading(nextUrl());
         }
-        printingFinalStats();
+        if(pagesAlreadyHit.size() > 0) {
+            printingFinalStats();
+        }
     }
 
     public void loading(String currentUrl) {

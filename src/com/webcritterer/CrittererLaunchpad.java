@@ -7,31 +7,18 @@ public class CrittererLaunchpad {
     //0...url or file file   1...pages 2...bandwidthlimiter 3...domainboundary 4...fileoutputclump
 
     public String[] args;
-    public String errorMsg = "Error: Please Refer to ReadMe/Instructions";
     public String usageMsg = "./run.sh {List all URLS here} [(Optional in any order) <--seedtxt=Directory Path to Text File Containing URLS> <--maxpages=Maximum NUMBER of pages to crawl to> <--maxbandwidth=Max NUMBER of Kilobytes/Second> <--domainstay> <--onefile>]";
-    public String otherSpecsMsg = "If other specifications are preferred, please refer to ReadMe/Instructions";
     Critterer critterer;
 
     CrittererLaunchpad(String args[]) {
         this.args = args;
     }
 
-    public void errorMessaging() {
-        System.out.println(errorMsg);
-        System.out.println(usageMsg);
-    }
-
-    public void askSpecsMessaging() {
-        System.out.println(otherSpecsMsg);
-        System.out.println(usageMsg);
-    }
-
     public void launchpad() {
         if (args.length == 0 || args[0].equals("help")) {
-            System.out.println(usageMsg);
+            System.out.println("Usage: " + usageMsg);
             return;
         }
-        askSpecsMessaging();
         long maxPagesGoingTo = 0;
         boolean pagesLimiter = false;
         boolean bandwidthLimiter = false;
@@ -45,26 +32,16 @@ public class CrittererLaunchpad {
         for (int argNum = 0; argNum < args.length; argNum++) {
 
             if (args[argNum].startsWith("--maxpages=")) {
-                String[] pagesToLoadInput = args[argNum].split("=");
-                String pagesToLoadString = pagesToLoadInput[1];
-                maxPagesGoingTo = Long.parseLong(pagesToLoadString);
-                System.out.println("Downloading " + maxPagesGoingTo + " pages");
                 pagesLimiter = true;
+                maxPagesGoingTo = getMaxPages(args[argNum]);
 
             } else if (args[argNum].startsWith("--seedtxt=")) {
-                String[] seedListPathInput = args[argNum].split("=");
-                String seedListPath = seedListPathInput[1];
-                seedListPass = seedListPath;
-                System.out.println("BOOOOooooooooooOOOOOOOOOOooooooOOOOOOOOOOOOOooooooooooOOOOOOOOOOOooooooOOOOOOOOOOooooooooooooooooooooooOOOOOOOOOOOOOO");
-                System.out.println("Using URL list from " + seedListPass);
                 seedList = true;
+                seedListPass = getSeedTxt(args[argNum]);
 
             } else if (args[argNum].startsWith("--maxbandwidth=")) {
-                String[] bandwidthLimitInput = args[argNum].split("=");
-                String bandwidthLimitValueInput = bandwidthLimitInput[1];
-                bandwidthLimitValue = Long.parseLong(bandwidthLimitValueInput);
                 bandwidthLimiter = true;
-                System.out.println("Bandwidth Limit On At: " + bandwidthLimitValue + " KB/sec");
+                bandwidthLimitValue = getMaxBandwidth(args[argNum]);
 
             } else if (args[argNum].equals("--domainstay")) {
                 domainRestricter = true;
@@ -74,11 +51,12 @@ public class CrittererLaunchpad {
                 fileOutputClump = true;
                 System.out.println("Content Critterered Will Be Placed In Single Text File");
 
+            } else if (args[argNum].contains("http://") || args[argNum].contains("https://")) {
+                listedURLs.add(args[argNum]);
+
             } else {
-                if (args[argNum].contains("http://") || args[argNum].contains("https://")) {
-                    listedURLs.add(args[argNum]);
-                    System.out.println("Running Configuration On " + args[argNum]);
-                }
+                System.out.println("Unrecognized argument/input: " + args[argNum]);
+                return;
             }
         }
         launchup(bandwidthLimitValue, domainRestricter, fileOutputClump, bandwidthLimiter, maxPagesGoingTo, pagesLimiter, seedList, seedListPass, listedURLs);
@@ -104,4 +82,45 @@ public class CrittererLaunchpad {
         System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
     }
 
+    private long getMaxPages(String arg) {
+        String[] pagesToLoadInput = arg.split("=");
+        if (pagesToLoadInput.length != 2) {
+            throw new IllegalArgumentException("Expected long after --maxpages=");
+        }
+        String pagesToLoadString = pagesToLoadInput[1];
+        long result = 0;
+        try {
+            result = Long.parseLong(pagesToLoadString);
+        } catch (NumberFormatException longnotlong) {
+            throw new IllegalArgumentException("Expected long after --maxpages=");
+        }
+        System.out.println("Downloading " + result + " pages");
+        return result;
+    }
+
+    private long getMaxBandwidth(String arg) {
+        String[] bandwidthLimitInput = arg.split("=");
+        if (bandwidthLimitInput.length != 2) {
+            throw new IllegalArgumentException("Expected long after --maxbandwdith=");
+        }
+        String bandwidthLimitValueInput = bandwidthLimitInput[1];
+        long result = 0;
+        try {
+            result = Long.parseLong(bandwidthLimitValueInput);
+        } catch (NumberFormatException longnotlong) {
+            throw new IllegalArgumentException("Expected long after --maxbandwidth=");
+        }
+        System.out.println("Bandwidth Limit On At: " + result + " KB/sec");
+        return result;
+    }
+
+    private String getSeedTxt(String arg) {
+        String[] seedListPathInput = arg.split("=");
+        if (seedListPathInput.length != 2) {
+            throw new IllegalArgumentException("Expected file name after --seedtxt=");
+        }
+        String result = seedListPathInput[1];
+        System.out.println("Using URL list from " + result);
+        return result;
+    }
 }

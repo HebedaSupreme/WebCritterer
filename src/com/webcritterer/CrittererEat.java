@@ -8,14 +8,14 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.io.FileOutputStream;
 
 
 public class CrittererEat {
 
-    private List<String> links = new LinkedList<String>();
+    private List<String> links = new ArrayList<String>();
     long totalBytesRead;
     long totalDiffInTimestamps;
     long totalSleepTime;
@@ -42,6 +42,7 @@ public class CrittererEat {
             HttpURLConnection connection = getConnection(url);
             String contentType = connection.getContentType();
             if(contentType == null) {
+                System.out.println("Invalid URL: " + url);
                 return;
             }
             System.out.println("Page from: " + url);

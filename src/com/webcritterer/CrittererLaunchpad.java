@@ -17,7 +17,7 @@ public class CrittererLaunchpad {
     public void launchpad() {
         if (args.length == 0 || args[0].equals("--help")) {
             System.out.println("Usage: " + usageMsg);
-            return;g
+            return;
         }
         long maxPagesGoingTo = 0;
         boolean pagesLimiter = false;

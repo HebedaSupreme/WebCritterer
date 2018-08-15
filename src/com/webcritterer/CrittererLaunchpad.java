@@ -45,11 +45,11 @@ public class CrittererLaunchpad {
 
             } else if (args[argNum].equals("--domainstay")) {
                 domainRestricter = true;
-                System.out.println("Critterering Restricted to Seed Domain");
+                //System.out.println("Critterering Restricted to Seed Domain");
 
             } else if (args[argNum].equals("--onefile")) {
                 fileOutputClump = true;
-                System.out.println("Content Critterered Will Be Placed In Single Text File");
+                //System.out.println("Content Critterered Will Be Placed In Single Text File");
 
             } else if (args[argNum].contains("http://") || args[argNum].contains("https://")) {
                 listedURLs.add(args[argNum]);
@@ -76,10 +76,7 @@ public class CrittererLaunchpad {
 
     public void printMoreFinalStats(long startTimestamp, long endTimestamp) {
         float totalTimeRunnning = (endTimestamp - startTimestamp) / 1000;
-        System.out.println("Total Time Running By Timestamp: " + totalTimeRunnning + " seconds");
-        long totalKilos = critterer.gettotalKilos();
-        float avgByTimestamp = totalKilos / totalTimeRunnning;
-        System.out.println("Average KB/sec by Timestamp: " + avgByTimestamp + " kilobytes/sec");
+        System.out.println("Finished in: " + totalTimeRunnning + " seconds");
     }
 
     private long getMaxPages(String arg) {
@@ -94,7 +91,7 @@ public class CrittererLaunchpad {
         } catch (NumberFormatException longnotlong) {
             throw new IllegalArgumentException("Expected long after --maxpages=");
         }
-        System.out.println("Downloading " + result + " pages");
+        //System.out.println("Downloading " + result + " pages");
         return result;
     }
 
@@ -110,7 +107,7 @@ public class CrittererLaunchpad {
         } catch (NumberFormatException longnotlong) {
             throw new IllegalArgumentException("Expected long after --maxbandwidth=");
         }
-        System.out.println("Bandwidth Limit On At: " + result + " KB/sec");
+        //System.out.println("Bandwidth Limit On At: " + result + " KB/sec");
         return result;
     }
 
@@ -120,7 +117,7 @@ public class CrittererLaunchpad {
             throw new IllegalArgumentException("Expected file name after --seedtxt=");
         }
         String result = seedListPathInput[1];
-        System.out.println("Using URL list from " + result);
+        //System.out.println("Using URL list from " + result);
         return result;
     }
 }

@@ -89,6 +89,10 @@ public class Critterer {
     }
 
     public void loader() {
+        if(pagesNeededToGoTo.size() == 0) {
+            System.out.println("No valid seeds given");
+            return;
+        }
         scramble = new CrittererEat(bandwidthLimitValue, fileOutputClump, bandwidthLimiter);
         if (!pagesLimiter) {
             maximumPagesToGoTo = 999999999;
